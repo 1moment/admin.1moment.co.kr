@@ -1,2 +1,8 @@
+@import "pretendard/dist/web/variable/pretendardvariable.css";
 @import "tailwindcss";
+
+@theme {
+    --font-sans: "Pretendard Variable";
+}
+
 @custom-variant dark (&:where(.dark, .dark *));

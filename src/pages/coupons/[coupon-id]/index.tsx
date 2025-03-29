@@ -1,5 +1,6 @@
 import * as React from "react";
 import { apiClient } from "@/utils/api-client.ts";
+import { format } from "date-fns/format";
 
 import { useParams } from "react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -10,7 +11,6 @@ import { FieldGroup, Field, Label } from "@/components/ui/fieldset";
 import { Text } from "@/components/ui/text";
 
 import Users from "@/components/coupons/users";
-import { format } from "date-fns/format";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
 

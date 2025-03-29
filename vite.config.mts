@@ -12,6 +12,9 @@ export default function ({ mode }) {
     build: {
       sourcemap: true, // Source map generation must be turned on
     },
+    server: {
+      allowedHosts: true
+    },
     plugins: [
       tsconfigPaths(),
       react(),

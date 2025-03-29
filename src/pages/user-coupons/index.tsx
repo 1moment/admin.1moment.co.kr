@@ -23,19 +23,24 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination.tsx";
 import { Link } from "@/components/ui/link";
+import { Switch } from "@/components/ui/switch.tsx";
 
-function Coupons() {
+function UserCoupons() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page") || 1);
   const {
     data: { items, meta },
-  } = useSuspenseQuery<{ items: Coupon[] }>({
-    queryKey: ["coupons", { page: currentPage }],
-    queryFn: () => {
-      return apiClient(`/admin/coupons?${searchParams.toString()}`).then(
-        (res) => res.json(),
+  } = useSuspenseQuery<{ items: UserCoupon[] }>({
+    queryKey: ["user-coupons", { page: currentPage }],
+    async queryFn() {
+      const params = new URLSearchParams();
+      params.set("page", `${currentPage}`);
+      const response = await apiClient(
+        `/admin/user-coupons?${params.toString()}`,
       );
+      const result = await response.json();
+      return result;
     },
   });
 
@@ -44,45 +49,72 @@ function Coupons() {
       <Table>
         <TableHead>
           <TableRow>
-            <TableHeader className="w-1 whitespace-nowrap text-center">식별자</TableHeader>
+            <TableHeader className="w-1 whitespace-nowrap text-center">
+              식별자
+            </TableHeader>
+            <TableHeader className="w-1 whitespace-nowrap text-center">
+              유저ID
+            </TableHeader>
+            <TableHeader className="w-1 whitespace-nowrap text-center">
+              쿠폰ID
+            </TableHeader>
             <TableHeader>쿠폰명</TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">코드</TableHeader>
-            <TableHeader>할인가격</TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">만료일</TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">생성일</TableHeader>
+            <TableHeader className="w-1 whitespace-nowrap text-center">
+              사용
+            </TableHeader>
+            <TableHeader className="w-1 whitespace-nowrap text-center">
+              만료일
+            </TableHeader>
+            <TableHeader className="w-1 whitespace-nowrap text-center">
+              발급일자
+            </TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
-          {items?.map((coupon) => (
-            <TableRow key={coupon.id}>
+          {items?.map((userCoupon) => (
+            <TableRow key={userCoupon.id}>
+              <TableCell className="text-center tabular-nums">
+                {userCoupon.id}
+              </TableCell>
               <TableCell>
                 <div className="flex justify-center">
                   <Link
                     className="underline tabular-nums"
-                    to={`/coupons/${coupon.id}`}
+                    to={`/users/${userCoupon.user.id}`}
                   >
-                    {coupon.id}
+                    {userCoupon.user.id}
                   </Link>
                 </div>
               </TableCell>
               <TableCell>
-                <Strong>{coupon.title}</Strong>
-                <Text>{coupon.note}</Text>
+                <div className="flex justify-center">
+                  <Link
+                    className="underline tabular-nums"
+                    to={`/coupons/${userCoupon.coupon.id}`}
+                  >
+                    {userCoupon.coupon.id}
+                  </Link>
+                </div>
               </TableCell>
-              <TableCell>{coupon.code}</TableCell>
-              <TableCell>
-                {Number(coupon.discountAmount).toLocaleString("ko-KR")}
+              <TableCell>{userCoupon.coupon.title}</TableCell>
+              <TableCell className="text-center tabular-nums">
+                {userCoupon.order && (
+                    <Link to={`/orders/${userCoupon.order.id}`}>{userCoupon.order.id}</Link>
+                )}
+                {userCoupon.usedAt
+                  ? format(new Date(userCoupon.usedAt), "yyyy-MM-dd HH:mm:ss")
+                  : "-"}
               </TableCell>
               <TableCell className="text-center tabular-nums">
-                {coupon.expirationDate
+                {userCoupon.coupon.expirationDate
                   ? format(
-                      new Date(coupon.expirationDate),
-                      "yyyy-MM-dd hh:mm:ss",
+                      new Date(userCoupon.coupon.expirationDate),
+                      "yyyy-MM-dd HH:mm:ss",
                     )
                   : "-"}
               </TableCell>
-              <TableCell>
-                {format(new Date(coupon.createdAt), "yyyy-MM-dd HH:mm:SS")}
+              <TableCell className="text-center tabular-nums">
+                {format(new Date(userCoupon.createdAt), "yyyy-MM-dd HH:mm:ss")}
               </TableCell>
             </TableRow>
           ))}
@@ -95,7 +127,6 @@ function Coupons() {
           {generatePagination(meta.totalPages, meta.page).map((page) => (
             <PaginationPage
               key={`page-${page}`}
-              href={`?${new URLSearchParams({ ...searchParams, page }).toString()}`}
               onClick={() => {
                 setSearchParams((searchParams) => {
                   searchParams.set("page", `${page}`);
@@ -114,7 +145,7 @@ function Coupons() {
   );
 }
 
-export default function CouponsPage() {
+export default function UserCouponsPage() {
   return (
     <React.Fragment>
       <Heading className="mb-8">쿠폰</Heading>
@@ -123,7 +154,7 @@ export default function CouponsPage() {
           <div className="p-8 text-center">쿠폰 목록을 불러오는 중...</div>
         }
       >
-        <Coupons />
+        <UserCoupons />
       </React.Suspense>
     </React.Fragment>
   );

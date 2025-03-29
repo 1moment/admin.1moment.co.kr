@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
 import CreateDialog from "@/components/admin-users/create-dialog.tsx";
+import { Link } from "@/components/ui/link.tsx";
 
 interface AdminUser {
   id: number;
@@ -57,24 +58,20 @@ function AdminUserTable() {
             <TableHeader className="whitespace-nowrap w-1">
               활성화여부
             </TableHeader>
-            <TableHeader className="whitespace-nowrap w-1">&nbsp;</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
           {data?.map((user) => (
             <TableRow key={user.id}>
-              <TableCell>{user.username}</TableCell>
+              <TableCell>
+                <Link className="underline" to={`/admin-users/${user.id}`}>{user.username}</Link>
+              </TableCell>
               <TableCell>{user.name}</TableCell>
               <TableCell>{user.role}</TableCell>
               <TableCell>
                 <div className="flex justify-center">
                   <Switch checked={user.isActive} />
                 </div>
-              </TableCell>
-              <TableCell>
-                <Button plain href={`/admin-users/${user.id}`}>
-                  상세
-                </Button>
               </TableCell>
             </TableRow>
           ))}

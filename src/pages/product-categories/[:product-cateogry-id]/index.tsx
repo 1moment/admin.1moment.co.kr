@@ -221,7 +221,7 @@ export default function Page() {
     <React.Fragment>
       <React.Suspense
         fallback={
-          <div className="p-8 text-center">사용자정보를 불러오는 중...</div>
+          <div className="p-8 text-center">카테고리 정보를 불러오는 중...</div>
         }
       >
         <ProductCategoryPage />

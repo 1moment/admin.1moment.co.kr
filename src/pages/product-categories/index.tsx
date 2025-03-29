@@ -15,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import { Button } from "@/components/ui/button.tsx";
 
 function ProductCategoriesPage() {
   const [searchParams] = useSearchParams();
@@ -43,13 +42,19 @@ function ProductCategoriesPage() {
               상태
             </TableHeader>
             <TableHeader className="whitespace-nowrap w-1">순서</TableHeader>
-            <TableHeader className="whitespace-nowrap w-1">&nbsp;</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
           {categories?.map((category) => (
             <TableRow key={category.id}>
-              <TableCell>{category.slug}</TableCell>
+              <TableCell>
+                <Link
+                  className="underline"
+                  to={`/product-categories/${category.id}`}
+                >
+                  {category.slug}
+                </Link>
+              </TableCell>
               <TableCell>{category.title}</TableCell>
               <TableCell>
                 <img
@@ -76,11 +81,6 @@ function ProductCategoriesPage() {
                 </div>
               </TableCell>
               <TableCell>{category.seq}</TableCell>
-              <TableCell>
-                <Link to={`/product-categories/${category.id}`}>
-                  <Button plain>상세보기</Button>
-                </Link>
-              </TableCell>
             </TableRow>
           ))}
         </TableBody>

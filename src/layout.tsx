@@ -35,7 +35,7 @@ import {
   ReceiptTextIcon,
   StarIcon,
   SquareStackIcon,
-  TicketIcon,
+  TicketIcon, CoinsIcon, HandCoinsIcon, SmilePlusIcon, TicketsIcon,
 } from "lucide-react";
 
 import UserContext from "./contexts/user-context.ts";
@@ -61,15 +61,11 @@ export default function Layout({ children }) {
                 <StarIcon />
                 <SidebarLabel>리뷰</SidebarLabel>
               </SidebarItem>
-              <SidebarItem to="/coupons">
-                <TicketIcon />
-                <SidebarLabel>쿠폰</SidebarLabel>
-              </SidebarItem>
             </SidebarSection>
 
             <SidebarSection className="max-lg:hidden">
               <SidebarHeading>주문</SidebarHeading>
-              <SidebarItem to="">
+              <SidebarItem to="/orders">
                 <ReceiptTextIcon />
                 <SidebarLabel>주문</SidebarLabel>
               </SidebarItem>
@@ -84,6 +80,24 @@ export default function Layout({ children }) {
               <SidebarItem to="">
                 <NotebookTextIcon />
                 <SidebarLabel>프로모션 페이지</SidebarLabel>
+              </SidebarItem>
+            </SidebarSection>
+
+            <SidebarSection className="max-lg:hidden">
+              <SidebarHeading>혜택</SidebarHeading>
+              <SidebarItem to="/coupons">
+                <TicketIcon />
+                <SidebarLabel>쿠폰</SidebarLabel>
+              </SidebarItem>
+
+              <SidebarItem to="/user-coupons">
+                <TicketsIcon />
+                <SidebarLabel>쿠폰 발급 현황</SidebarLabel>
+              </SidebarItem>
+
+              <SidebarItem to="/points">
+                <SmilePlusIcon />
+                <SidebarLabel>적립금</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
 

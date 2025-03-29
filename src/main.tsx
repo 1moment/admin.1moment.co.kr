@@ -6,9 +6,10 @@ import Routes from "./routes.tsx";
 import * as Sentry from "@sentry/react";
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
+  environment: import.meta.env.VITE_SENTRY_ENVIRONMENT,
   integrations: [],
   // Set `tracePropagationTargets` to control for which URLs trace propagation should be enabled
-  tracePropagationTargets: [/^\//, /^https:\/\/yourserver\.io\/api/],
+  // tracePropagationTargets: [/^\//, /^https:\/\/yourserver\.io\/api/],
 });
 
 const queryClient = new QueryClient();

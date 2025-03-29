@@ -22,6 +22,9 @@ import {
 import { Strong, Text } from "@/components/ui/text";
 import { Rating } from "@/components/ui/rating.tsx";
 import { generatePagination } from "@/utils/generate-pagination-array.ts";
+import { Button } from "@/components/ui/button.tsx";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import {Link} from "@/components/ui/link.tsx";
 
 function ReviewsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -60,9 +63,7 @@ function ReviewsPage() {
           {items.map((review) => (
             <TableRow key={review.id}>
               <TableCell>
-                {review.title && (
-                    <Strong>{review.title}</Strong>
-                )}
+                {review.title && <Strong>{review.title}</Strong>}
                 <Text className="whitespace-pre-wrap">
                   {review.description}
                 </Text>
@@ -79,9 +80,9 @@ function ReviewsPage() {
                   </ul>
                 )}
                 {review.product && (
-                    <div className="mt-3 border-l-4 px-3 py-2 border-gray-200">
-                      <Strong>{review.product.title}</Strong>
-                    </div>
+                  <div className="mt-3 border-l-4 px-3 py-2 border-gray-200">
+                    <Strong>{review.product.title}</Strong>
+                  </div>
                 )}
               </TableCell>
               <TableCell>
@@ -90,8 +91,19 @@ function ReviewsPage() {
               <TableCell>
                 <Rating rating={review.ratingScore} />
               </TableCell>
-              <TableCell>{review.isHidden}</TableCell>
-              <TableCell>{review.orderItemId}</TableCell>
+              <TableCell>
+                {review.isHidden ? (
+                  <Button plain>
+                    <EyeOffIcon />
+                  </Button>
+                ) : (
+                  <Button plain>
+                    <EyeIcon />
+                  </Button>
+                )}
+              </TableCell>
+              <TableCell>
+                <Link className="underline" to={`/orders/${review.orderItem.order.id}`}>{review.orderItem.order.id}</Link></TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -1,44 +1,88 @@
-import React, { lazy } from "react";
+import * as React from "react";
 import { BrowserRouter, Routes, Route } from "react-router";
 import ProtectedLayout from "./protected-layout.tsx";
 
-import LoginPage from "./pages/login";
+const AdminUsersPage = React.lazy(() => import("./pages/admin-users"));
+const AdminUserPage = React.lazy(
+  () => import("./pages/admin-users/[:admin-user-id]"),
+);
 
-const AdminUsersPage = lazy(() => import("./pages/admin-users"));
-const AdminUserPage = lazy(() => import("./pages/admin-users/[:admin-user-id]"));
+const CouponsPage = React.lazy(() => import("./pages/coupons"));
+const CouponPage = React.lazy(() => import("./pages/coupons/[coupon-id]"));
 
-const CouponsPage = lazy(() => import('./pages/coupons'));
-const CouponPage = lazy(() => import('./pages/coupons/[coupon-id]'))
+const LoginPage = React.lazy(() => import("./pages/login"));
 
-const ProductCategoriesPage = lazy(() => import('./pages/product-categories'));
-const ProductCategoryPage = lazy(() => import('./pages/product-categories/[:product-cateogry-id]'));
+const OrdersPage = React.lazy(() => import("./pages/orders"));
+const OrderPage = React.lazy(() => import("./pages/orders/[order-id]"));
 
-const ReviewsPage = lazy(() => import('./pages/reviews'));
+const PointsPage = React.lazy(() => import("./pages/points"));
+
+const ProductCategoriesPage = React.lazy(
+  () => import("./pages/product-categories"),
+);
+const ProductCategoryPage = React.lazy(
+  () => import("./pages/product-categories/[:product-cateogry-id]"),
+);
+
+const ProductsPage = React.lazy(() => import("./pages/products"));
+const ProductPage = React.lazy(() => import("./pages/products/[product-id]"));
+
+const ReviewsPage = React.lazy(() => import("./pages/reviews"));
+
+const UsersPage = React.lazy(() => import("./pages/users"));
+const UserPage = React.lazy(() => import("./pages/users/[user-id]"));
+
+const UserCouponsPage = React.lazy(() => import("./pages/user-coupons"));
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      <Routes>.
+      <Routes>
         <Route element={<ProtectedLayout />}>
           <Route path="/" element={<div>fefe</div>} />
-          <Route path="/login" element={<LoginPage />} />
 
           <Route path="admin-users">
-            <Route path="" element={<AdminUsersPage />}/>
+            <Route path="" element={<AdminUsersPage />} />
             <Route path=":admin-user-id" element={<AdminUserPage />} />
           </Route>
 
           <Route path="coupons">
-            <Route path="" element={<CouponsPage />}/>
+            <Route path="" element={<CouponsPage />} />
             <Route path=":coupon-id" element={<CouponPage />} />
           </Route>
 
+          <Route path="/login" element={<LoginPage />} />
+
+          <Route path="orders">
+            <Route path="" element={<OrdersPage />} />
+            <Route path=":order-id" element={<OrderPage />} />
+          </Route>
+
+          <Route path="points" element={<PointsPage />}/>
+
           <Route path="product-categories">
             <Route path="" element={<ProductCategoriesPage />} />
-            <Route path=":product-category-id" element={<ProductCategoryPage />} />
+            <Route
+              path=":product-category-id"
+              element={<ProductCategoryPage />}
+            />
           </Route>
+
+          <Route path="products">
+            <Route path="" element={<ProductsPage />} />
+            <Route path=":product-id" element={<ProductPage />} />
+          </Route>
+
+          <Route path="users">
+            <Route path="" element={<UsersPage />} />
+            <Route path=":user-id" element={<UserPage />} />
+          </Route>
+
           <Route path="reviews">
             <Route path="" element={<ReviewsPage />} />
           </Route>
+
+          <Route path="user-coupons" element={<UserCouponsPage />}/>
         </Route>
       </Routes>
     </BrowserRouter>
