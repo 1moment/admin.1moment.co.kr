@@ -58,6 +58,9 @@ function UserCoupons() {
               연락처
             </TableHeader>
             <TableHeader className="w-1 whitespace-nowrap text-center">
+              등급
+            </TableHeader>
+            <TableHeader className="w-1 whitespace-nowrap text-center">
               가입방법
             </TableHeader>
             <TableHeader className="w-1 whitespace-nowrap text-center">
@@ -87,9 +90,8 @@ function UserCoupons() {
               <TableCell className="text-center tabular-nums">
                 {user.phoneNumber}
               </TableCell>
-              <TableCell className="text-center">
-                {user.authProvider}
-              </TableCell>
+              <TableCell className="text-center">{user.level}</TableCell>
+              <TableCell className="text-center">{user.authProvider}</TableCell>
 
               <TableCell className="text-center tabular-nums">
                 {format(new Date(user.createdAt), "yyyy-MM-dd HH:mm:ss")}
@@ -130,10 +132,10 @@ function UserCoupons() {
 export default function UserCouponsPage() {
   return (
     <React.Fragment>
-      <Heading className="mb-8">쿠폰</Heading>
+      <Heading className="mb-8">사용자</Heading>
       <React.Suspense
         fallback={
-          <div className="p-8 text-center">쿠폰 목록을 불러오는 중...</div>
+          <div className="p-8 text-center">사용자 목록을 불러오는 중...</div>
         }
       >
         <UserCoupons />

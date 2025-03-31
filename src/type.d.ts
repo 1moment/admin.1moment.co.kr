@@ -5,6 +5,19 @@ type AdminUser = {
   role: "ADMIN" | "MANAGER" | "FLORIST";
 };
 
+type Banner = {
+  id: number;
+  title: string;
+  status: "PUBLISHED" | "DRAFT";
+  imageUrl?: string;
+  mobileImageUlr?: string;
+  position: BannerPostion;
+  link?: string;
+  sequence: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 type ProductCategory = {
   id: number;
   parentId: number;
@@ -42,6 +55,15 @@ type ProductItem = {
   originPrice?: number;
   price: number;
   quantityInStock: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type ProductContentBlock = {
+  id: number;
+  title: string;
+  content: string;
+  isUsed: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -121,6 +143,16 @@ type Payment = {
   updatedAt: string;
 };
 
+type PromotionCategory = {
+  id: number;
+  title: string;
+  imageUrl: string;
+  seq: number;
+  category: ProductCategory;
+  createdAt: string;
+  updatedAt: string;
+}
+
 type Point = {
   id: number;
   note: string;
@@ -138,4 +170,10 @@ enum DeliveryStatus {
   WAITING,
   CANCELED,
   FAILED,
+}
+
+enum BannerPostion {
+  TOP = "TOP",
+  MIDDLE = "MIDDLE",
+  BOTTOM = "BOTTOM",
 }

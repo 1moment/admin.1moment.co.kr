@@ -26,7 +26,8 @@ import {
   TableRow,
 } from "@/components/ui/table.tsx";
 import { Link } from "@/components/ui/link.tsx";
-import {UnplugIcon} from "lucide-react";
+import { Editor } from "@/components/ui/editor.tsx";
+import {PencilIcon, UnplugIcon} from "lucide-react";
 
 function Product() {
   const params = useParams<{ "product-id": string }>();
@@ -38,6 +39,17 @@ function Product() {
     queryKey: ["products", productId],
     async queryFn() {
       const response = await apiClient(`/admin/products/${productId}`);
+      const result = await response.json();
+      return result;
+    },
+  });
+
+  const {
+    data: { items: productContentBlocks },
+  } = useSuspenseQuery<{ items: ProductContentBlock[] }>({
+    queryKey: ["product-content-blocks", { isUsed: true }],
+    async queryFn() {
+      const response = await apiClient("/admin/product-content-blocks");
       const result = await response.json();
       return result;
     },
@@ -183,7 +195,7 @@ function Product() {
 
         <Divider className="my-10" />
 
-        <section className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
+        <section className="">
           <div className="space-y-1">
             <Subheading>내용</Subheading>
             <Text>상품 상세에서 사용될 내용</Text>
@@ -192,30 +204,38 @@ function Product() {
             <FieldGroup>
               <Field>
                 <Label>내용</Label>
-                <Textarea
-                  name="content"
-                  defaultValue={product.content}
-                  readOnly={!isEdit}
-                  rows={4}
-                />
+                <Editor content={product.content} />
+
+                {/*<Textarea*/}
+                {/*  name="content"*/}
+                {/*  defaultValue={product.content}*/}
+                {/*  readOnly={!isEdit}*/}
+                {/*  rows={4}*/}
+                {/*/>*/}
               </Field>
 
               <Field>
                 <Label>상단내용</Label>
-                <Input
-                  name="title"
-                  defaultValue={product.title}
-                  readOnly={!isEdit}
-                />
+                <Select defaultValue={product.topContentBlockId} readOnly={!isEdit}>
+                  <option value="">없음</option>
+                  {productContentBlocks.map((productContentBlock) => (
+                    <option value={productContentBlock.id}>
+                      {productContentBlock.title}
+                    </option>
+                  ))}
+                </Select>
               </Field>
 
               <Field>
                 <Label>하단내용</Label>
-                <Input
-                  name="title"
-                  defaultValue={product.title}
-                  readOnly={!isEdit}
-                />
+                <Select defaultValue={product.bottomContentBlockId} readOnly={!isEdit}>
+                  <option value="">없음</option>
+                  {productContentBlocks.map((productContentBlock) => (
+                      <option value={productContentBlock.id}>
+                        {productContentBlock.title}
+                      </option>
+                  ))}
+                </Select>
               </Field>
             </FieldGroup>
           </div>
@@ -246,32 +266,49 @@ function Product() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader className="w-1 whitespace-nowrap text-center">ID</TableHeader>
-              <TableHeader>할인전가격</TableHeader>
-              <TableHeader>가격</TableHeader>
+              <TableHeader className="w-1 whitespace-nowrap text-center">
+                식별자
+              </TableHeader>
+              <TableHeader>옵션명</TableHeader>
+              <TableHeader className="text-center">할인전가격</TableHeader>
+              <TableHeader className="text-center">가격</TableHeader>
               <TableHeader>재고</TableHeader>
-              <TableHeader className="w-1 whitespace-nowrap">&nbsp;</TableHeader>
+              <TableHeader className="w-1 whitespace-nowrap">
+                &nbsp;
+              </TableHeader>
             </TableRow>
           </TableHead>
           {product.items.length > 0 ? (
-              <TableBody>
-                {product.items.map((productItem) => (
-                    <TableRow key={productItem.id}>
-                      <TableCell>{productItem.id}</TableCell>
-                      <TableCell>{productItem.originPrice ? productItem.originPrice.toLocaleString('ko-KR') : '-'}</TableCell>
-                      <TableCell>{productItem.price.toLocaleString('ko-KR')}</TableCell>
-                      <TableCell>{productItem.quantityInStock}</TableCell>
+            <TableBody>
+              {product.items.map((productItem) => (
+                <TableRow key={productItem.id}>
+                  <TableCell>{productItem.id}</TableCell>
+                  <TableCell>{productItem.title}</TableCell>
+                  <TableCell className="text-center">
+                    {productItem.originPrice
+                      ? `${productItem.originPrice.toLocaleString("ko-KR")}원`
+                      : "-"}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {productItem.price.toLocaleString("ko-KR")}원
+                  </TableCell>
+                  <TableCell>{productItem.quantityInStock}</TableCell>
 
-                      <TableCell><Button plain><UnplugIcon data-slot="icon" />수정</Button></TableCell>
-                    </TableRow>
-                ))}
-              </TableBody>
-          ) : (
-              <TableBody>
-                <TableRow>
-                  <TableCell>연결된 카테고리가 없습니다.</TableCell>
+                  <TableCell>
+                    <Button plain>
+                      <PencilIcon data-slot="icon" />
+                      수정
+                    </Button>
+                  </TableCell>
                 </TableRow>
-              </TableBody>
+              ))}
+            </TableBody>
+          ) : (
+            <TableBody>
+              <TableRow>
+                <TableCell>연결된 카테고리가 없습니다.</TableCell>
+              </TableRow>
+            </TableBody>
           )}
         </Table>
       </section>
@@ -289,37 +326,46 @@ function Product() {
           <TableHead>
             <TableRow>
               <TableHeader className="w-1 whitespace-nowrap">식별</TableHeader>
-              <TableHeader className="w-1 whitespace-nowrap">카테고리ID</TableHeader>
+              <TableHeader className="w-1 whitespace-nowrap">
+                카테고리ID
+              </TableHeader>
               <TableHeader>SLUG</TableHeader>
               <TableHeader>카테고리명</TableHeader>
-              <TableHeader className="w-1 whitespace-nowrap">&nbsp;</TableHeader>
+              <TableHeader className="w-1 whitespace-nowrap">
+                &nbsp;
+              </TableHeader>
             </TableRow>
           </TableHead>
           {product.categories.length > 0 ? (
-              <TableBody>
-                {product.categories.map((productCategory) => (
-                    <TableRow key={productCategory.id}>
-                      <TableCell>{productCategory.id}</TableCell>
-                      <TableCell>
-                        <Link
-                            className="flex justify-center underline"
-                            to={`/product-categories/${productCategory.category.id}`}
-                        >
-                          {productCategory.category.id}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{productCategory.category.slug}</TableCell>
-                      <TableCell>{productCategory.category.title}</TableCell>
-                      <TableCell><Button color="red"><UnplugIcon data-slot="icon" />연결끊기</Button></TableCell>
-                    </TableRow>
-                ))}
-              </TableBody>
-          ) : (
-              <TableBody>
-                <TableRow>
-                  <TableCell>연결된 카테고리가 없습니다.</TableCell>
+            <TableBody>
+              {product.categories.map((productCategory) => (
+                <TableRow key={productCategory.id}>
+                  <TableCell>{productCategory.id}</TableCell>
+                  <TableCell>
+                    <Link
+                      className="flex justify-center underline"
+                      to={`/product-categories/${productCategory.category.id}`}
+                    >
+                      {productCategory.category.id}
+                    </Link>
+                  </TableCell>
+                  <TableCell>{productCategory.category.slug}</TableCell>
+                  <TableCell>{productCategory.category.title}</TableCell>
+                  <TableCell>
+                    <Button color="red">
+                      <UnplugIcon data-slot="icon" />
+                      연결끊기
+                    </Button>
+                  </TableCell>
                 </TableRow>
-              </TableBody>
+              ))}
+            </TableBody>
+          ) : (
+            <TableBody>
+              <TableRow>
+                <TableCell>연결된 카테고리가 없습니다.</TableCell>
+              </TableRow>
+            </TableBody>
           )}
         </Table>
       </section>

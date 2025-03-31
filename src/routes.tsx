@@ -7,6 +7,8 @@ const AdminUserPage = React.lazy(
   () => import("./pages/admin-users/[:admin-user-id]"),
 );
 
+const BannersPage = React.lazy(() => import("./pages/banners"));
+
 const CouponsPage = React.lazy(() => import("./pages/coupons"));
 const CouponPage = React.lazy(() => import("./pages/coupons/[coupon-id]"));
 
@@ -24,8 +26,18 @@ const ProductCategoryPage = React.lazy(
   () => import("./pages/product-categories/[:product-cateogry-id]"),
 );
 
+const ProductContentBlocksPage = React.lazy(
+  () => import("./pages/product-content-blocks"),
+);
+const ProductContentBlockPage = React.lazy(
+  () => import("./pages/product-content-blocks/[:product-content-block-id]"),
+);
+
 const ProductsPage = React.lazy(() => import("./pages/products"));
 const ProductPage = React.lazy(() => import("./pages/products/[product-id]"));
+
+const PromotionCategoriesPage = React.lazy(() => import('./pages/promotion-categories'))
+const PromotionCategoryPage = React.lazy(() => import('./pages/promotion-categories/[promotion-category-id]'))
 
 const ReviewsPage = React.lazy(() => import("./pages/reviews"));
 
@@ -46,6 +58,8 @@ export default function AppRoutes() {
             <Route path=":admin-user-id" element={<AdminUserPage />} />
           </Route>
 
+          <Route path="banners" element={<BannersPage />} />
+
           <Route path="coupons">
             <Route path="" element={<CouponsPage />} />
             <Route path=":coupon-id" element={<CouponPage />} />
@@ -58,7 +72,7 @@ export default function AppRoutes() {
             <Route path=":order-id" element={<OrderPage />} />
           </Route>
 
-          <Route path="points" element={<PointsPage />}/>
+          <Route path="points" element={<PointsPage />} />
 
           <Route path="product-categories">
             <Route path="" element={<ProductCategoriesPage />} />
@@ -68,9 +82,22 @@ export default function AppRoutes() {
             />
           </Route>
 
+          <Route path="product-content-blocks">
+            <Route path="" element={<ProductContentBlocksPage />} />
+            <Route
+              path=":product-content-block-id"
+              element={<ProductContentBlockPage />}
+            />
+          </Route>
+
           <Route path="products">
             <Route path="" element={<ProductsPage />} />
             <Route path=":product-id" element={<ProductPage />} />
+          </Route>
+
+          <Route path="promotion-categories">
+            <Route path="" element={<PromotionCategoriesPage />} />
+            <Route path=":promotion-category-id" element={<PromotionCategoryPage />} />
           </Route>
 
           <Route path="users">
@@ -82,7 +109,7 @@ export default function AppRoutes() {
             <Route path="" element={<ReviewsPage />} />
           </Route>
 
-          <Route path="user-coupons" element={<UserCouponsPage />}/>
+          <Route path="user-coupons" element={<UserCouponsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
