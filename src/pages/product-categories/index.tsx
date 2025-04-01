@@ -15,14 +15,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
+import useCategories from "../../hooks/use-categories.tsx";
 
 function ProductCategoriesPage() {
   const [searchParams] = useSearchParams();
-  const { data: categories } = useSuspenseQuery<ProductCategory[]>({
-    queryKey: ["product-categories", { status: searchParams.get("status") }],
-    queryFn: () =>
-      apiClient("/admin/product-categories").then((res) => res.json()),
-  });
+  const { data: { items: categories } } = useCategories({ status: searchParams.get("status") });
 
   const [openImage, setOpenImage] = React.useState(null);
   return (

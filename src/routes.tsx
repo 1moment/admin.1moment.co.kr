@@ -4,7 +4,7 @@ import ProtectedLayout from "./protected-layout.tsx";
 
 const AdminUsersPage = React.lazy(() => import("./pages/admin-users"));
 const AdminUserPage = React.lazy(
-  () => import("./pages/admin-users/[:admin-user-id]"),
+  () => import("./pages/admin-users/[admin-user-id]"),
 );
 
 const BannersPage = React.lazy(() => import("./pages/banners"));
@@ -39,7 +39,14 @@ const ProductPage = React.lazy(() => import("./pages/products/[product-id]"));
 const PromotionCategoriesPage = React.lazy(() => import('./pages/promotion-categories'))
 const PromotionCategoryPage = React.lazy(() => import('./pages/promotion-categories/[promotion-category-id]'))
 
+const PromotionSectionsPage = React.lazy(() => import('./pages/promotion-sections'))
+const PromotionSectionPage = React.lazy(() => import('./pages/promotion-sections/[promotion-section-id]'))
+
 const ReviewsPage = React.lazy(() => import("./pages/reviews"));
+
+const SnsSectionsPage = React.lazy(() => import('./pages/sns-sections'));
+const SnsSectionCreatePage = React.lazy(() => import('./pages/sns-sections/create'));
+const SnsSectionPage = React.lazy(() => import('./pages/sns-sections/[sns-section-id]'));
 
 const UsersPage = React.lazy(() => import("./pages/users"));
 const UserPage = React.lazy(() => import("./pages/users/[user-id]"));
@@ -100,6 +107,11 @@ export default function AppRoutes() {
             <Route path=":promotion-category-id" element={<PromotionCategoryPage />} />
           </Route>
 
+          <Route path="promotion-sections">
+            <Route path="" element={<PromotionSectionsPage />} />
+            <Route path=":promotion-section-id" element={<PromotionSectionPage />} />
+          </Route>
+
           <Route path="users">
             <Route path="" element={<UsersPage />} />
             <Route path=":user-id" element={<UserPage />} />
@@ -107,6 +119,12 @@ export default function AppRoutes() {
 
           <Route path="reviews">
             <Route path="" element={<ReviewsPage />} />
+          </Route>
+
+          <Route path="sns-sections">
+            <Route path="" element={<SnsSectionsPage />} />
+            <Route path="create" element={<SnsSectionCreatePage />} />
+            <Route path=":sns-section-id" element={<SnsSectionPage />} />
           </Route>
 
           <Route path="user-coupons" element={<UserCouponsPage />} />

@@ -35,7 +35,7 @@ import {
   ReceiptTextIcon,
   StarIcon,
   SquareStackIcon,
-  TicketIcon, CoinsIcon, HandCoinsIcon, SmilePlusIcon, TicketsIcon, LayoutTemplateIcon,
+  TicketIcon, SmilePlusIcon, TicketsIcon, LayoutTemplateIcon,
 } from "lucide-react";
 
 import UserContext from "./contexts/user-context.ts";

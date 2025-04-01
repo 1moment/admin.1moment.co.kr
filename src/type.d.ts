@@ -3,6 +3,7 @@ type AdminUser = {
   name: string;
   username: string;
   role: "ADMIN" | "MANAGER" | "FLORIST";
+  isActive: boolean;
 };
 
 type Banner = {
@@ -153,6 +154,21 @@ type PromotionCategory = {
   updatedAt: string;
 }
 
+type PromotionSection = {
+  id: number;
+  title: string;
+  sequence: number;
+  products: {
+    id: number;
+    sequence: number;
+    product: Product;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 type Point = {
   id: number;
   note: string;
@@ -162,6 +178,18 @@ type Point = {
   createdAt: string;
   updatedAt: string;
 };
+
+type SnsSection = {
+  id: number;
+  title: string;
+  status: string;
+  sequence: number;
+  displayedHandlerName,
+  imageUrl: string;
+  product: Product;
+  createdAt: string;
+  updatedAt: string;
+}
 
 enum DeliveryStatus {
   DELIVERING,
