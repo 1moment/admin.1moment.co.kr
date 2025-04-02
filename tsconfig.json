@@ -20,7 +20,7 @@
     "paths": {
       "@/components/*": ["./src/components/*"],
       "@/hooks/*": ["./src/hooks/*"],
-      "@/utils/*": ["./src/utils/*"],
+      "@/utils/*": ["./src/utils/*"]
     }
   },
   "include": ["src", "vite.config.mts"]

@@ -1,12 +1,8 @@
 import React from "react";
 import * as Sentry from "@sentry/react";
-import { apiClient } from "@/utils/api-client.ts";
-
+import { generatePagination } from "@/utils/generate-pagination-array.ts";
 import { useSearchParams, Link } from "react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { Badge } from "@/components/ui/badge";
-import { Dialog } from "@/components/ui/dialog.tsx";
 import { Heading } from "@/components/ui/heading.tsx";
 import {
   Table,
@@ -24,7 +20,9 @@ import {
   PaginationPage,
   PaginationPrevious,
 } from "@/components/ui/pagination.tsx";
-import { generatePagination } from "@/utils/generate-pagination-array.ts";
+import { LinkButton } from "@/components/ui/button.tsx";
+
+import { useProducts } from "@/hooks/use-products.tsx";
 
 function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -32,26 +30,10 @@ function Products() {
   const currentPage = Number(searchParams.get("page") || 1);
   const {
     data: { items, meta },
-  } = useSuspenseQuery<{ items: Product[] }>({
-    queryKey: [
-      "product",
-      {
-        page: currentPage,
-        status: searchParams.get("status"),
-      },
-    ],
-    async queryFn() {
-      const params = new URLSearchParams(searchParams);
-      params.set("page", `${currentPage}`);
-      const response = await apiClient(`/admin/products?${params.toString()}`);
-      const result = await response.json();
-      return result;
-    },
-  });
+  } = useProducts({ currentPage });
 
-  const [openImage, setOpenImage] = React.useState(null);
   return (
-    <div>
+    <div className="mt-8 p-4 bg-white border border-gray-100 rounded-xl">
       <Table>
         <TableHead>
           <TableRow>
@@ -110,8 +92,17 @@ function Products() {
 export default function ProductsPage() {
   return (
     <React.Fragment>
-      <Heading className="mb-8">상품</Heading>
-      <Sentry.ErrorBoundary fallback={(errorData) => <p>{errorData.error.message}</p>}>
+      <div className="flex justify-between">
+        <Heading>상품</Heading>
+        <div>
+          <LinkButton to="/products/create" color="zinc">
+            상품 추가
+          </LinkButton>
+        </div>
+      </div>
+      <Sentry.ErrorBoundary
+        fallback={(errorData) => <p>{errorData.error.message}</p>}
+      >
         <React.Suspense
           fallback={
             <div className="p-8 text-center">상품 목록을 불러오는 중...</div>

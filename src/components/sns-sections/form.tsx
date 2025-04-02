@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog.tsx";
 
 import useFileUploadMutation from "@/hooks/use-file-upload-mutation.tsx";
-import useProducts from "@/hooks/use-products.tsx";
+import { useProducts } from "@/hooks/use-products.tsx";
 
 export default function SnsSectionForm({
   snsSection,

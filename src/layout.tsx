@@ -35,7 +35,11 @@ import {
   ReceiptTextIcon,
   StarIcon,
   SquareStackIcon,
-  TicketIcon, SmilePlusIcon, TicketsIcon, LayoutTemplateIcon,
+  TicketIcon,
+  SmilePlusIcon,
+  TicketsIcon,
+  LayoutTemplateIcon,
+  HomeIcon,
 } from "lucide-react";
 
 import UserContext from "./contexts/user-context.ts";
@@ -46,6 +50,14 @@ export default function Layout({ children }) {
     <SidebarLayout
       sidebar={
         <Sidebar>
+          <SidebarHeader>
+            <SidebarSection className="max-lg:hidden">
+              <SidebarItem to="/">
+                <HomeIcon />
+                <SidebarLabel>메인</SidebarLabel>
+              </SidebarItem>
+            </SidebarSection>
+          </SidebarHeader>
           <SidebarBody>
             <SidebarSection className="max-lg:hidden">
               <SidebarHeading>상품관련</SidebarHeading>

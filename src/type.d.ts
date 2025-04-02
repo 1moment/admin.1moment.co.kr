@@ -21,7 +21,7 @@ type Banner = {
 
 type ProductCategory = {
   id: number;
-  parentId: number;
+  parentId: number | null;
   title: string;
   seq: number; // 순서
   slug: string;
@@ -45,7 +45,10 @@ type Product = {
   additionalGroupId: number;
   bottomContentBlockId: number;
   items: ProductItem[];
-  categories: ProductCategory[];
+  categories: {
+    id: number;
+    category: ProductCategory;
+  }[];
   createdAt: string;
   updatedAt: string;
 };
@@ -152,7 +155,7 @@ type PromotionCategory = {
   category: ProductCategory;
   createdAt: string;
   updatedAt: string;
-}
+};
 
 type PromotionSection = {
   id: number;
@@ -167,7 +170,7 @@ type PromotionSection = {
   }[];
   createdAt: string;
   updatedAt: string;
-}
+};
 
 type Point = {
   id: number;
@@ -184,12 +187,12 @@ type SnsSection = {
   title: string;
   status: string;
   sequence: number;
-  displayedHandlerName,
+  displayedHandlerName;
   imageUrl: string;
   product: Product;
   createdAt: string;
   updatedAt: string;
-}
+};
 
 enum DeliveryStatus {
   DELIVERING,

@@ -1,8 +1,6 @@
 import React from "react";
-import { apiClient } from "@/utils/api-client.ts";
 
 import { useSearchParams, Link } from "react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog.tsx";
@@ -15,11 +13,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import useCategories from "../../hooks/use-categories.tsx";
+
+import { useCategories } from "@/hooks/use-categories.tsx";
+import {
+  Pagination,
+  PaginationList,
+  PaginationNext,
+  PaginationPage,
+  PaginationPrevious,
+} from "@/components/ui/pagination.tsx";
+import { generatePagination } from "@/utils/generate-pagination-array.ts";
+import { Button } from "@/components/ui/button.tsx";
 
 function ProductCategoriesPage() {
-  const [searchParams] = useSearchParams();
-  const { data: { items: categories } } = useCategories({ status: searchParams.get("status") });
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentPage = Number(searchParams.get("page") || 1);
+  const {
+    data: { items: categories, meta },
+  } = useCategories({ status: searchParams.get("status"), currentPage });
 
   const [openImage, setOpenImage] = React.useState(null);
   return (
@@ -82,6 +94,26 @@ function ProductCategoriesPage() {
           ))}
         </TableBody>
       </Table>
+      <Pagination className="mt-8">
+        <PaginationPrevious>이전</PaginationPrevious>
+        <PaginationList>
+          {generatePagination(meta.totalPages, meta.page).map((page) => (
+            <PaginationPage
+              key={`page-${page}`}
+              onClick={() => {
+                setSearchParams((searchParams) => {
+                  searchParams.set("page", `${page}`);
+                  return searchParams;
+                });
+              }}
+              current={page === currentPage}
+            >
+              {page}
+            </PaginationPage>
+          ))}
+        </PaginationList>
+        <PaginationNext>다음</PaginationNext>
+      </Pagination>
       <Dialog open={!!openImage} onClose={() => setOpenImage(null)}>
         <img src={openImage} alt="" />
       </Dialog>
@@ -92,7 +124,10 @@ function ProductCategoriesPage() {
 export default function Page() {
   return (
     <React.Fragment>
-      <Heading className="mb-8">상품 카테고리</Heading>
+      <div className="mb-8 flex items-start justify-between">
+        <Heading>상품 카테고리</Heading>
+        <Button to="/product-categories/create">추가</Button>
+      </div>
       <React.Suspense
         fallback={
           <div className="p-8 text-center">

@@ -1,17 +1,24 @@
 import * as React from "react";
+import clsx from "clsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { apiClient } from "@/utils/api-client.ts";
-import { Subheading } from "@/components/ui/heading.tsx";
+
 import { generatePagination } from "@/utils/generate-pagination-array.ts";
 import { Button } from "@/components/ui/button.tsx";
-import clsx from "clsx";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table.tsx";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table.tsx";
 
 export default function Products({ productCategoryId }) {
   const [currentPage, setCurrentPage] = React.useState(1);
   const {
     data: { items, meta },
-  } = useSuspenseQuery<{ items: ProductCategory[]; }>({
+  } = useSuspenseQuery<{ items: ProductCategory[] }>({
     queryKey: [
       "products",
       {
@@ -30,11 +37,8 @@ export default function Products({ productCategoryId }) {
     },
   });
 
-
   return (
-    <section>
-      <Subheading>연결된 상품</Subheading>
-
+    <React.Fragment>
       <Table className="mt-8">
         <TableHead>
           <TableRow>
@@ -42,27 +46,29 @@ export default function Products({ productCategoryId }) {
           </TableRow>
         </TableHead>
         {items.length > 0 ? (
-            <TableBody>
-              {items.map((item) => (
-                  <TableRow key={`product-${item.id}`}>
-                    <TableCell>
-                      {item.title}
-                    </TableCell>
-                  </TableRow>
-              ))}
-            </TableBody>
-        ) : (
-            <TableBody>
-              <TableRow>
-                <TableCell>연결된 상품이 없습니다.</TableCell>
+          <TableBody>
+            {items.map((item) => (
+              <TableRow key={`product-${item.id}`}>
+                <TableCell>{item.title}</TableCell>
               </TableRow>
-            </TableBody>
+            ))}
+          </TableBody>
+        ) : (
+          <TableBody>
+            <TableRow>
+              <TableCell>연결된 상품이 없습니다.</TableCell>
+            </TableRow>
+          </TableBody>
         )}
       </Table>
 
       <ul className="mt-4 flex gap-3">
         <li className="grow basis-0">
-          <Button plain disabled={currentPage < 2} onClick={() => setCurrentPage(currentPage - 1)}>
+          <Button
+            plain
+            disabled={currentPage < 2}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
             <svg
               className="stroke-current"
               data-slot="icon"
@@ -96,7 +102,11 @@ export default function Products({ productCategoryId }) {
           </li>
         ))}
         <li className="grow basis-0 flex justify-end">
-          <Button plain disabled={currentPage >= meta.totalPages} onClick={() => setCurrentPage(currentPage + 1)}>
+          <Button
+            plain
+            disabled={currentPage >= meta.totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
             다음
             <svg
               className="stroke-current"
@@ -115,6 +125,6 @@ export default function Products({ productCategoryId }) {
           </Button>
         </li>
       </ul>
-    </section>
+    </React.Fragment>
   );
 }

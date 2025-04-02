@@ -13,7 +13,7 @@ import {
   UndoIcon,
 } from "lucide-react";
 
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor, type EditorOptions } from "@tiptap/react";
 import { Divider } from "@/components/ui/divider.tsx";
 import { Button } from "@/components/ui/button.tsx";
 
@@ -67,15 +67,25 @@ Paragraph.configure({
   },
 });
 
-export function Editor({ content }) {
+export function Editor({
+  name,
+  content,
+  onUpdate,
+}: {
+  name?: string;
+  content?: string;
+  onUpdate?: EditorOptions["onUpdate"];
+}) {
   const editor = useEditor({
     extensions,
     content: content,
     editorProps: {
       attributes: {
+        name,
         class: "px-4 py-3",
       },
     },
+    onUpdate,
   });
 
   if (!editor) return null;
@@ -220,7 +230,10 @@ export function Editor({ content }) {
         </Button>
       </div>
       <Divider />
-      <EditorContent editor={editor} />
+      <EditorContent
+        className="max-h-[500px] overflow-y-auto"
+        editor={editor}
+      />
     </div>
   );
 }

@@ -9,10 +9,10 @@ import { Heading, Subheading } from "@/components/ui/heading.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { FieldGroup, Field, Label } from "@/components/ui/fieldset";
 import { Text } from "@/components/ui/text";
-import useFileUploadMutation from "../../../hooks/use-file-upload-mutation.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Select } from "@/components/ui/select.tsx";
-import useCategories from "../../../hooks/use-categories.tsx";
+import { useCategories } from "@/hooks/use-categories.tsx";
+import useFileUploadMutation from "@/hooks/use-file-upload-mutation.tsx";
 
 function PromotionCategory() {
   const params = useParams<{ "promotion-category-id": string }>();

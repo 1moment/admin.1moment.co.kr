@@ -23,8 +23,9 @@ const ProductCategoriesPage = React.lazy(
   () => import("./pages/product-categories"),
 );
 const ProductCategoryPage = React.lazy(
-  () => import("./pages/product-categories/[:product-cateogry-id]"),
+  () => import("./pages/product-categories/[product-cateogry-id]"),
 );
+const ProductCategoryCreatePage = React.lazy(() => import('./pages/product-categories/create'))
 
 const ProductContentBlocksPage = React.lazy(
   () => import("./pages/product-content-blocks"),
@@ -35,6 +36,7 @@ const ProductContentBlockPage = React.lazy(
 
 const ProductsPage = React.lazy(() => import("./pages/products"));
 const ProductPage = React.lazy(() => import("./pages/products/[product-id]"));
+const ProductCreatePage = React.lazy(() => import('./pages/products/create'))
 
 const PromotionCategoriesPage = React.lazy(() => import('./pages/promotion-categories'))
 const PromotionCategoryPage = React.lazy(() => import('./pages/promotion-categories/[promotion-category-id]'))
@@ -83,6 +85,7 @@ export default function AppRoutes() {
 
           <Route path="product-categories">
             <Route path="" element={<ProductCategoriesPage />} />
+            <Route path="create" element={<ProductCategoryCreatePage />} />
             <Route
               path=":product-category-id"
               element={<ProductCategoryPage />}
@@ -99,6 +102,7 @@ export default function AppRoutes() {
 
           <Route path="products">
             <Route path="" element={<ProductsPage />} />
+            <Route path="create" element={<ProductCreatePage />} />
             <Route path=":product-id" element={<ProductPage />} />
           </Route>
 

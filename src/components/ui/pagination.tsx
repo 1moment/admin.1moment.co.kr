@@ -1,5 +1,6 @@
-import clsx from "clsx";
 import type React from "react";
+import clsx from "clsx";
+
 import { Button } from "./button.tsx";
 
 export function Pagination({
@@ -98,8 +99,8 @@ export function PaginationPage({
   onClick,
   children,
 }: React.PropsWithChildren<{
-  href: string;
   className?: string;
+  onClick: React.ComponentProps<typeof Button>["onClick"];
   current?: boolean;
 }>) {
   return (

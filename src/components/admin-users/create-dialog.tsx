@@ -52,7 +52,8 @@ export default function CreateDialog({ refetch, isOpen, setIsOpen }) {
           <FieldGroup>
             <Field>
               <Label>
-                아이디&nbsp;<span className="text-red-400">*</span>
+                아이디&nbsp;
+                <span className="text-red-400">*</span>
               </Label>
               <Input
                 type="text"
@@ -64,7 +65,8 @@ export default function CreateDialog({ refetch, isOpen, setIsOpen }) {
             </Field>
             <Field>
               <Label>
-                비밀번호&nbsp;<span className="text-red-400">*</span>
+                비밀번호&nbsp;
+                <span className="text-red-400">*</span>
               </Label>
               <Input
                 type="password"
@@ -77,7 +79,8 @@ export default function CreateDialog({ refetch, isOpen, setIsOpen }) {
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-4">
               <Field>
                 <Label>
-                  이름&nbsp;<span className="text-red-400">*</span>
+                  이름&nbsp;
+                  <span className="text-red-400">*</span>
                 </Label>
                 <Input
                   type="text"
@@ -89,7 +92,8 @@ export default function CreateDialog({ refetch, isOpen, setIsOpen }) {
               </Field>
               <Field>
                 <Label>
-                  권한&nbsp;<span className="text-red-400">*</span>
+                  권한&nbsp;
+                  <span className="text-red-400">*</span>
                 </Label>
                 <Select name="role" defaultValue="MANAGER">
                   <option value="ADMIN">관리자</option>
