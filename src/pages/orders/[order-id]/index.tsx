@@ -34,7 +34,6 @@ function Coupon() {
     },
   });
 
-  console.log(order);
   return (
     <React.Fragment>
       <div className="flex justify-between">

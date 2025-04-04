@@ -19,6 +19,8 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
+import AdminUserForm from "@/components/admin-users/form.tsx";
+import { ArrowLeftIcon } from "lucide-react";
 
 function AdminUser() {
   const params = useParams<{ "admin-user-id": string }>();
@@ -28,25 +30,7 @@ function AdminUser() {
   const { mutate: updateAdminUser } = useAdminUserUpdateMutation(adminUserId);
 
   const onSubmit = React.useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-
-      const formData = new FormData(event.currentTarget);
-
-      const data: Parameters<typeof updateAdminUser>[0] = {};
-      if (adminUser.username !== formData.get("username")) {
-        data.username = formData.get("username") as string;
-      }
-
-      if (adminUser.name !== formData.get("name")) {
-        data.name = formData.get("name") as string;
-      }
-
-      if (adminUser.role !== formData.get("role")) {
-        // @ts-ignore
-        data.role = formData.get("role") as string;
-      }
-
+    (data) => {
       updateAdminUser(data, {
         onSuccess() {
           alert("정보를 변경하였습니다");
@@ -67,63 +51,20 @@ function AdminUser() {
   return (
     <div>
       <div className="flex justify-between">
-        <Heading className="">{adminUser.name}</Heading>
-        <div className="flex gap-3">
-          <Button
-            color={adminUser.isActive ? "green" : "red"}
-            onClick={() => setOpenActiveModal(true)}
-          >
-            {adminUser.isActive ? "활성화" : "비활성화"}
+        <div className="flex items-center">
+          <Button plain onClick={() => navigate(-1)}>
+            <ArrowLeftIcon width={20} height={20} />
           </Button>
+          <Heading>{adminUser.name}</Heading>
+        </div>
+        <div className="flex gap-3">
           <Button color="indigo" onClick={() => setOpenPasswordModal(true)}>
             비밀번호 변경
           </Button>
         </div>
       </div>
 
-      <form
-        className="mt-10 p-4 border border-gray-100 rounded shadow"
-        onSubmit={onSubmit}
-      >
-        <section className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-          <div className="space-y-1">
-            <Subheading>기본정보</Subheading>
-            <Text>현재 섹션의 기본 정보</Text>
-          </div>
-          <div>
-            <FieldGroup>
-              <Field>
-                <Label>
-                  username&nbsp;<span className="text-red-400">*</span>
-                </Label>
-                <Input name="username" defaultValue={adminUser.username} />
-              </Field>
-
-              <Field>
-                <Label>
-                  이름&nbsp;<span className="text-red-400">*</span>
-                </Label>
-                <Input name="name" defaultValue={adminUser.name} />
-              </Field>
-
-              <Field>
-                <Label>
-                  권한&nbsp;<span className="text-red-400">*</span>
-                </Label>
-                <Select name="role" defaultValue={adminUser.role}>
-                  <option value="ADMIN">관리자</option>
-                  <option value="MANAGER">매니저</option>
-                  <option value="FLORIST">플로리스트</option>
-                </Select>
-              </Field>
-
-              <div className="flex justify-end">
-                <Button type="submit">저장</Button>
-              </div>
-            </FieldGroup>
-          </div>
-        </section>
-      </form>
+      <AdminUserForm adminUser={adminUser} onSubmit={onSubmit} />
       <Dialog open={openPasswordModal} onClose={setOpenPasswordModal}>
         <DialogTitle>비밀번호 변경</DialogTitle>
         <DialogDescription>관리자의 비밀번호를 변경합니다</DialogDescription>
@@ -164,55 +105,6 @@ function AdminUser() {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <Dialog open={openActiveModal} onClose={setOpenActiveModal}>
-        <DialogTitle>관리자 활성화 상태 변경</DialogTitle>
-        <DialogDescription>
-          관리자의 활성화 상태를 변경합니다.
-        </DialogDescription>
-        <DialogActions>
-          <Button plain onClick={() => setOpenActiveModal(false)}>
-            닫기
-          </Button>
-          {adminUser.isActive ? (
-            <Button
-              color="red"
-              onClick={() => {
-                updateAdminUser(
-                  { isActive: false },
-                  {
-                    onSuccess() {
-                      refetch();
-                      alert("관리자를 비활성화하였습니다.");
-                      setOpenActiveModal(false);
-                    },
-                  },
-                );
-              }}
-            >
-              비활성
-            </Button>
-          ) : (
-            <Button
-              color="green"
-              onClick={() => {
-                updateAdminUser(
-                  { isActive: true },
-                  {
-                    onSuccess() {
-                      refetch();
-                      alert("관리자를 활성화하였습니다.");
-                      setOpenActiveModal(false);
-                    },
-                  },
-                );
-              }}
-            >
-              활성화
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
     </div>
   );
 }
@@ -221,7 +113,7 @@ export default function Page() {
   return (
     <React.Fragment>
       <Sentry.ErrorBoundary
-        fallback={(errorData) => <p>{errorData.error.message}</p>}
+        fallback={({ error }) => <p>{errorData.error.message}</p>}
       >
         <React.Suspense
           fallback={

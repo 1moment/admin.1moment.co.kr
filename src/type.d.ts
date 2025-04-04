@@ -2,7 +2,7 @@ type AdminUser = {
   id: number;
   name: string;
   username: string;
-  role: "ADMIN" | "MANAGER" | "FLORIST";
+  role: string;
   isActive: boolean;
 };
 

@@ -2,6 +2,8 @@ import * as React from "react";
 import { BrowserRouter, Routes, Route } from "react-router";
 import ProtectedLayout from "./protected-layout.tsx";
 
+const HomePage = React.lazy(() => import("./pages/"));
+
 const AdminUsersPage = React.lazy(() => import("./pages/admin-users"));
 const AdminUserPage = React.lazy(
   () => import("./pages/admin-users/[admin-user-id]"),
@@ -60,7 +62,7 @@ export default function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route element={<ProtectedLayout />}>
-          <Route path="/" element={<div>fefe</div>} />
+          <Route path="/" element={<HomePage />} />
 
           <Route path="admin-users">
             <Route path="" element={<AdminUsersPage />} />

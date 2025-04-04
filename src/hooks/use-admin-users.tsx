@@ -1,7 +1,7 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { apiClient } from "@/utils/api-client.ts";
 
-type MutationData = Pick<AdminUser, "name" | "role" | "username" | "isActive">;
+export type AdminUserMutationData = Pick<AdminUser, "name" | "role" | "username" | "isActive">;
 
 export function useAdminUsers() {
   return useSuspenseQuery<AdminUser[]>({

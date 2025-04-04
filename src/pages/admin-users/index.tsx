@@ -37,7 +37,7 @@ function AdminUserTable() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
 
   return (
-    <div className="">
+    <div className="mt-8 p-4 bg-white border border-gray-100 rounded-xl">
       <Table>
         <TableHead>
           <TableRow>

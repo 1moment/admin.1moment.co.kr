@@ -102,7 +102,10 @@ export default function Page() {
   return (
     <React.Fragment>
       <Sentry.ErrorBoundary
-        fallback={({ error }) => <p>{(error as Error).message}</p>}
+          fallback={({ error, componentStack }) => {
+            console.error(error, componentStack);
+            return <p>{(error as Error).message}</p>;
+          }}
       >
         <React.Suspense
           fallback={
