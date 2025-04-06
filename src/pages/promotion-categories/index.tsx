@@ -36,7 +36,7 @@ function PromotionCategories() {
   });
 
   return (
-    <div>
+    <div className="py-4 bg-white rounded-xl">
       <Table>
         <TableHead>
           <TableRow>

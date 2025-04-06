@@ -72,7 +72,8 @@ function Orders() {
               <Link
                 className="text-blue-400"
                 to={{
-                  search: "?status=ORDERED&deliveryStatus=WAITING&deliveryMethodType=DELIVERY",
+                  search:
+                    "?status=ORDERED&deliveryStatus=WAITING&deliveryMethodType=DELIVERY",
                 }}
               >
                 택배 배차 전
@@ -80,7 +81,8 @@ function Orders() {
               <Link
                 className="text-blue-400"
                 to={{
-                  search: "?status=ORDERED&deliveryStatus=PENDING&deliveryMethodType=DELIVERY",
+                  search:
+                    "?status=ORDERED&deliveryStatus=PENDING&deliveryMethodType=DELIVERY",
                 }}
               >
                 택배 배송 전
@@ -88,7 +90,8 @@ function Orders() {
               <Link
                 className="text-blue-400"
                 to={{
-                  search: "?status=ORDERED&deliveryStatus=WAITING&deliveryMethodType=QUICK",
+                  search:
+                    "?status=ORDERED&deliveryStatus=WAITING&deliveryMethodType=QUICK",
                 }}
               >
                 퀵 배송 전
@@ -96,7 +99,8 @@ function Orders() {
               <Link
                 className="text-blue-400"
                 to={{
-                  search: "?status=ORDERED&deliveryStatus=PENDING&deliveryMethodType=QUICK",
+                  search:
+                    "?status=ORDERED&deliveryStatus=PENDING&deliveryMethodType=QUICK",
                 }}
               >
                 퀵 배송 전
@@ -201,7 +205,7 @@ function Orders() {
             <TableHeader>주문번호</TableHeader>
             <TableHeader>주문상태</TableHeader>
             <TableHeader>구매자</TableHeader>
-            <TableHeader>익명발송</TableHeader>
+            <TableHeader>보내는사람</TableHeader>
             <TableHeader>배송방식</TableHeader>
             <TableHeader>배송상태</TableHeader>
             <TableHeader>배송지</TableHeader>
@@ -217,8 +221,29 @@ function Orders() {
                 </Link>
               </TableCell>
               <TableCell>{order.status}</TableCell>
-              <TableCell>{/*<p>{order}</p>*/}</TableCell>
-              <TableCell>{order.isAnonymous ? "✅" : ""}</TableCell>
+              <TableCell>
+                {order.user ? (
+                  <React.Fragment>
+                    <Link className="underline" to={`/users/${order.user.id}`}>{order.user.id}</Link>
+                    <p>{order.user.email}</p>
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <p>비회원</p>
+                    <p>{order.nonMemberEmail}</p>
+                  </React.Fragment>
+                )}
+              </TableCell>
+              <TableCell>
+                {order.isAnonymous ? (
+                  <p>익명</p>
+                ) : (
+                  <React.Fragment>
+                    <p>{order.senderName}</p>
+                    <p>{order.senderPhoneNumber}</p>
+                  </React.Fragment>
+                )}
+              </TableCell>
               <TableCell>{order.deliveryMethod?.title}</TableCell>
               <TableCell>{order.deliveryStatus}</TableCell>
               <TableCell>

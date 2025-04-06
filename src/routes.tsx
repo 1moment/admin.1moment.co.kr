@@ -32,8 +32,9 @@ const ProductCategoryCreatePage = React.lazy(() => import('./pages/product-categ
 const ProductContentBlocksPage = React.lazy(
   () => import("./pages/product-content-blocks"),
 );
+const ProductContentBlockCreatePage = React.lazy(() => import('./pages/product-content-blocks/create'))
 const ProductContentBlockPage = React.lazy(
-  () => import("./pages/product-content-blocks/[:product-content-block-id]"),
+  () => import("./pages/product-content-blocks/[product-content-block-id]"),
 );
 
 const ProductsPage = React.lazy(() => import("./pages/products"));
@@ -96,6 +97,7 @@ export default function AppRoutes() {
 
           <Route path="product-content-blocks">
             <Route path="" element={<ProductContentBlocksPage />} />
+            <Route path="create" element={<ProductContentBlockCreatePage />} />
             <Route
               path=":product-content-block-id"
               element={<ProductContentBlockPage />}

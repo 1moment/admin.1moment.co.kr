@@ -43,7 +43,9 @@ export default function ProductForm({
 }) {
   const {
     data: { items: productContentBlocks },
-  } = useProductContentBlocks();
+  } = useProductContentBlocks({
+    isUsed: true
+  });
   const { mutate: fileUpload } = useFileUploadMutation();
 
   const [imageUrl, setImageUrl] = React.useState<string | undefined>(

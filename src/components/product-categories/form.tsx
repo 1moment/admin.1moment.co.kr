@@ -29,16 +29,14 @@ export default function ProductCategoryForm({
     string | undefined
   >(productCategory?.mobileImageUrl);
   return (
-    <form
-      className="mt-8 p-4 border border-gray-100 rounded shadow"
-      onSubmit={handleSubmit}
-    >
-      <section className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-        <div className="space-y-1">
+    <form onSubmit={handleSubmit}>
+      <div className="grid grid-cols-1 gap-x-8 gap-y-8 py-10 md:grid-cols-3">
+        <div className="px-4 sm:px-0">
           <Subheading>기본정보</Subheading>
-          <Text>현재 카테고리의 기본 정보</Text>
+          <Text>상품에 대한 기본 정보</Text>
         </div>
-        <div>
+
+        <div className="px-4 py-6 sm:p-8 bg-white ring-1 shadow-xs ring-gray-900/5 sm:rounded-xl md:col-span-2">
           <FieldGroup>
             <Field>
               <Label>
@@ -119,7 +117,22 @@ export default function ProductCategoryForm({
             </Field>
 
             <Field>
-              <Label>상위 카테고리</Label>
+              <Label>순서</Label>
+              <Input name="seq" defaultValue={productCategory?.seq} />
+            </Field>
+          </FieldGroup>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-x-8 gap-y-8 py-10 md:grid-cols-3">
+        <div className="px-4 sm:px-0">
+          <Subheading>상위 카테고리</Subheading>
+          <Text>상품에 대한 기본 정보</Text>
+        </div>
+
+        <div className="px-4 py-6 sm:p-8 bg-white ring-1 shadow-xs ring-gray-900/5 sm:rounded-xl md:col-span-2">
+          <FieldGroup>
+            <Field>
               <Select name="parentId" defaultValue={productCategory?.parentId}>
                 <option value="">없음</option>
                 {productCategories.map((category) => (
@@ -129,18 +142,12 @@ export default function ProductCategoryForm({
                 ))}
               </Select>
             </Field>
-
-            <Field>
-              <Label>순서</Label>
-              <Input name="seq" defaultValue={productCategory?.seq} />
-            </Field>
-
-            <div className="flex justify-end gap-1">
-              <Button type="submit">저장</Button>
-            </div>
           </FieldGroup>
         </div>
-      </section>
+      </div>
+      <div className="flex justify-end gap-1">
+        <Button type="submit">저장</Button>
+      </div>
     </form>
   );
 }

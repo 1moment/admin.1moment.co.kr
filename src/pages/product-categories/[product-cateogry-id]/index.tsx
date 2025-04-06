@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useParams } from "react-router";
+import {useNavigate, useParams} from "react-router";
 import * as Sentry from "@sentry/react";
 
 import { Heading, Subheading } from "@/components/ui/heading.tsx";
@@ -11,8 +11,10 @@ import {
 } from "@/hooks/use-categories.tsx";
 import ProductCategoryForm from "@/components/product-categories/form.tsx";
 import { Button } from "@/components/ui/button.tsx";
+import { ArrowLeftIcon } from "lucide-react";
 
 function ProductCategoryPage() {
+  const navigate = useNavigate();
   const params = useParams<{ "product-category-id": string }>();
 
   const productCategoryId = Number(params["product-category-id"]);
@@ -70,8 +72,11 @@ function ProductCategoryPage() {
 
   return (
     <React.Fragment>
-      <div className="flex justify-between">
-        <Heading>상품 카테고리 상세</Heading>
+      <div className="flex items-center">
+        <Button plain onClick={() => navigate(-1)}>
+          <ArrowLeftIcon width={20} height={20} />
+        </Button>
+        <Heading>{productCategory.title}</Heading>
       </div>
 
       <ProductCategoryForm
@@ -79,7 +84,7 @@ function ProductCategoryPage() {
         productCategory={productCategory}
       />
 
-      <div className="mt-8 p-4 border border-gray-100 rounded shadow">
+      <div className="mt-8 p-4 border border-gray-100 bg-white rounded-xl">
         <Subheading>연결된 상품</Subheading>
         <Sentry.ErrorBoundary
           fallback={({ error, resetError }) => (
@@ -102,10 +107,10 @@ export default function Page() {
   return (
     <React.Fragment>
       <Sentry.ErrorBoundary
-          fallback={({ error, componentStack }) => {
-            console.error(error, componentStack);
-            return <p>{(error as Error).message}</p>;
-          }}
+        fallback={({ error, componentStack }) => {
+          console.error(error, componentStack);
+          return <p>{(error as Error).message}</p>;
+        }}
       >
         <React.Suspense
           fallback={

@@ -1,8 +1,9 @@
 import * as React from "react";
+import * as Sentry from "@sentry/react";
 import { format } from "date-fns/format";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { apiClient } from "@/utils/api-client.ts";
+import { generatePagination } from "@/utils/generate-pagination-array.ts";
 import { useSearchParams } from "react-router";
+
 import {
   Table,
   TableBody,
@@ -21,35 +22,70 @@ import {
 } from "@/components/ui/pagination.tsx";
 import { Strong, Text } from "@/components/ui/text";
 import { Rating } from "@/components/ui/rating.tsx";
-import { generatePagination } from "@/utils/generate-pagination-array.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import {Link} from "@/components/ui/link.tsx";
+import { Link } from "@/components/ui/link.tsx";
+
+import {
+  useReviews,
+  useReviewVisibilityMutation,
+} from "@/hooks/use-reviews.tsx";
+import { Field, Label } from "@/components/ui/fieldset.tsx";
+import { Select } from "@/components/ui/select.tsx";
 
 function ReviewsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page") || 1);
+  const rating = Number(searchParams.get("rating"));
+  const isHidden = searchParams.get("isHidden");
+
   const {
     data: { items, meta },
-  } = useSuspenseQuery<{ items: Review[] }>({
-    queryKey: [
-      "reviews",
-      {
-        page: currentPage,
-        rating: searchParams.get("rating"),
-      },
-    ],
-    queryFn: () => {
-      return apiClient(
-        `/admin/reviews?${searchParams.toString()}&size=20`,
-      ).then((res) => res.json());
-    },
-  });
+    refetch,
+  } = useReviews({ currentPage, rating, isHidden });
+
+  const { mutate: updateVisibility } = useReviewVisibilityMutation();
 
   return (
-    <div>
-      <Table className="max-w-[100%]">
+    <div className="mt-10 py-4 bg-white sm:rounded-xl">
+      <form className="px-4 items-end flex">
+        <div className="grow flex flex-col items-start justify-start gap-3">
+          <div className="flex items-center justify-center gap-6">
+            <Field className="shrink-0 w-16">
+              <Label>별점</Label>
+            </Field>
+            <Select className="max-w-48" name="rating" defaultValue={rating}>
+              <option value="">전체</option>
+              <option value="5">⭐️⭐️⭐️⭐️⭐️</option>
+              <option value="4">⭐️⭐️⭐️⭐️</option>
+              <option value="3">⭐️⭐️⭐️</option>
+              <option value="2">⭐️⭐️</option>
+              <option value="1">⭐️</option>
+            </Select>
+          </div>
+
+          <div className="flex items-center justify-center gap-6">
+            <Field className="shrink-0 w-16">
+              <Label>숨김여부</Label>
+            </Field>
+            <Select
+                className="max-w-48"
+                name="isHidden"
+                defaultValue={isHidden}
+            >
+              <option value="">전체</option>
+              <option value="true">숨김</option>
+              <option value="false">표시</option>
+            </Select>
+          </div>
+        </div>
+        <Button type="submit" className="shrink-0" color="zinc">
+          조회
+        </Button>
+      </form>
+      <hr className="mt-4 border-zinc-500/10" />
+      <Table className="mt-4 px-4 max-w-[100%]">
         <TableHead>
           <TableRow>
             <TableHeader className="w-auto">내용</TableHeader>
@@ -94,16 +130,56 @@ function ReviewsPage() {
               <TableCell>
                 {review.isHidden ? (
                   <Button plain>
-                    <EyeOffIcon />
+                    <EyeOffIcon
+                      onClick={() => {
+                        if (confirm("리뷰를 숨기겠습니까?")) {
+                          updateVisibility(
+                            {
+                              reviewId: review.id,
+                              isHidden: false,
+                            },
+                            {
+                              onSuccess() {
+                                refetch();
+                              },
+                            },
+                          );
+                        }
+                      }}
+                    />
                   </Button>
                 ) : (
                   <Button plain>
-                    <EyeIcon />
+                    <EyeIcon
+                      onClick={() => {
+                        if (confirm("리뷰를 숨기겠습니까?")) {
+                          updateVisibility(
+                            {
+                              reviewId: review.id,
+                              isHidden: true,
+                            },
+                            {
+                              onSuccess() {
+                                refetch();
+                              },
+                            },
+                          );
+                        }
+                      }}
+                    />
                   </Button>
                 )}
               </TableCell>
               <TableCell>
-                <Link className="underline" to={`/orders/${review.orderItem.order.id}`}>{review.orderItem.order.id}</Link></TableCell>
+                {review.orderItem?.order && (
+                  <Link
+                    className="underline"
+                    to={`/orders/${review.orderItem.order.id}`}
+                  >
+                    {review.orderItem.order.id}
+                  </Link>
+                )}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -114,7 +190,13 @@ function ReviewsPage() {
           {generatePagination(meta.totalPages, meta.page).map((page) => (
             <PaginationPage
               key={`page-${page}`}
-              href={`?${new URLSearchParams({ ...searchParams, page }).toString()}`}
+              onClick={() => {
+                setSearchParams((prev) => {
+                  const params = new URLSearchParams(prev);
+                  params.set("page", `${page}`);
+                  return params;
+                });
+              }}
               current={page === currentPage}
             >
               {page}
@@ -130,14 +212,21 @@ function ReviewsPage() {
 export default function Page() {
   return (
     <React.Fragment>
-      <React.Suspense
-        fallback={
-          <div className="p-8 text-center">리뷰목록을 불러오는 중...</div>
-        }
+      <Sentry.ErrorBoundary
+        fallback={({ error, componentStack }) => {
+          console.error(error, componentStack);
+          return <p>{(error as Error).message}</p>;
+        }}
       >
-        <Heading>리뷰목록</Heading>
-        <ReviewsPage />
-      </React.Suspense>
+        <React.Suspense
+          fallback={
+            <div className="p-8 text-center">리뷰목록을 불러오는 중...</div>
+          }
+        >
+          <Heading>리뷰목록</Heading>
+          <ReviewsPage />
+        </React.Suspense>
+      </Sentry.ErrorBoundary>
     </React.Fragment>
   );
 }

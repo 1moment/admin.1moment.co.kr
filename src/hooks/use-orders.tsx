@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { apiClient } from "@/utils/api-client.ts";
 
 export function useOrders({
@@ -42,5 +42,30 @@ export function useOrders({
       return result;
     },
   });
-  6;
+}
+
+export function useOrder(orderId: number) {
+  return useSuspenseQuery<Order>({
+    queryKey: ["orders", orderId],
+    async queryFn() {
+      const response = await apiClient(`/admin/orders/${orderId}`);
+      const result = await response.json();
+
+      if (result.error) {
+        throw new Error(result.message);
+      }
+
+      return result;
+    },
+  });
+}
+
+export function useOrderMessagePrint(orderId: number) {
+  return useMutation({
+    async mutationFn() {
+      const response = await apiClient(`/admin/orders/${orderId}/printer`);
+      const result = await response.json();
+      return result;
+    },
+  });
 }

@@ -4,33 +4,31 @@ import { useNavigate } from "react-router";
 import { ArrowLeftIcon } from "lucide-react";
 
 import { Heading } from "@/components/ui/heading.tsx";
+import ProductContentBlockForm from "@/components/product-content-blocks/form.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import ProductForm from "@/components/products/form.tsx";
 
-import { useProductCreateMutation } from "@/hooks/use-products.tsx";
+import { useProductContentBlockCreateMutation } from "@/hooks/use-product-content-blocks.tsx";
 
-function ProductCreate() {
+function ProductContentBlock() {
   const navigate = useNavigate();
 
-  const { mutate, isPending } = useProductCreateMutation();
+  const { mutate, isPending } = useProductContentBlockCreateMutation();
 
   return (
     <React.Fragment>
-      <div className="flex justify-between">
-        <div className="flex items-center gap-2">
-          <Button plain onClick={() => navigate(-1)}>
-            <ArrowLeftIcon width={20} height={20} />
-          </Button>
-          <Heading>상품 추가</Heading>
-        </div>
+      <div className="flex items-center">
+        <Button plain onClick={() => navigate(-1)}>
+          <ArrowLeftIcon width={20} height={20} />
+        </Button>
+        <Heading>상세페이지 템플릿 생성</Heading>
       </div>
-      <ProductForm
+      <ProductContentBlockForm
         isLoading={isPending}
-        handleSubmit={(data) => {
+        onSubmit={(data) => {
           mutate(data, {
             onSuccess(data) {
-              alert("상품을 추가하였습니다");
-              navigate(`/products/${data.id}`);
+              navigate(`/product-content-blocks/${data.id}`);
+              alert("템플릿을 추가하였습니다");
             },
             onError(error) {
               alert(error.message);
@@ -42,7 +40,7 @@ function ProductCreate() {
   );
 }
 
-export default function ProductCreatePage() {
+export default function ProductContentBlockPage() {
   return (
     <React.Fragment>
       <Sentry.ErrorBoundary
@@ -53,10 +51,10 @@ export default function ProductCreatePage() {
       >
         <React.Suspense
           fallback={
-            <div className="p-8 text-center">상품 정보를 불러오는 중...</div>
+            <div className="p-8 text-center">사용자정보를 불러오는 중...</div>
           }
         >
-          <ProductCreate />
+          <ProductContentBlock />
         </React.Suspense>
       </Sentry.ErrorBoundary>
     </React.Fragment>

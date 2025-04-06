@@ -10,13 +10,14 @@ type MutationData = Pick<
 };
 export function useCategories(option?: {
   limit?: number;
-  status: "PUBLISHED" | "DRAFT";
+  status: string;
   currentPage?: number;
 }) {
   const limit = option?.limit || 10;
   const currentPage = option?.currentPage || 1;
+  const q = { limit, status: option?.status, currentPage };
   return useSuspenseQuery<{ items: ProductCategory[] }>({
-    queryKey: ["product-categories", { limit, status: option?.status }],
+    queryKey: ["product-categories", JSON.stringify(q)],
     async queryFn() {
       const params = new URLSearchParams();
       params.set("limit", limit.toString());
