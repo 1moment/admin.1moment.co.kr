@@ -3,7 +3,7 @@ import { format } from "date-fns/format";
 import { useParams } from "react-router";
 import * as Sentry from "@sentry/react";
 
-import { Button } from "@/components/ui/button.tsx";
+import { Button, LinkButton } from "@/components/ui/button.tsx";
 import { Heading, Subheading } from "@/components/ui/heading.tsx";
 import {
   DescriptionDetails,
@@ -14,7 +14,12 @@ import { Text } from "@/components/ui/text.tsx";
 import { CalendarIcon, ReceiptTextIcon } from "lucide-react";
 import { Link } from "@/components/ui/link.tsx";
 
-import { useOrder, useOrderMessagePrint } from "@/hooks/use-orders.tsx";
+import {
+  useOrder,
+  useOrderMessagePrint,
+  useReserve,
+} from "@/hooks/use-orders.tsx";
+import { Badge } from "@/components/ui/badge.tsx";
 
 function Coupon() {
   const params = useParams<{ "order-id": string }>();
@@ -22,13 +27,15 @@ function Coupon() {
   const orderId = Number(params["order-id"]);
   const { data: order } = useOrder(orderId);
   const { mutate: print, isPending } = useOrderMessagePrint(orderId);
+  const { mutate: reserve } = useReserve(orderId);
 
   return (
     <React.Fragment>
-      <div className="flex justify-between">
+      <div className="flex items-end justify-between">
         <div>
-          <div>
+          <div className="flex items-center gap-2">
             <Heading>주문 #{orderId}</Heading>
+            <Badge>{order.status}</Badge>
           </div>
           <div className="mt-2 flex gap-4">
             <div className="flex items-center gap-2">
@@ -51,6 +58,17 @@ function Coupon() {
               </Text>
             </div>
           </div>
+        </div>
+
+        <div>
+          <Button
+            isLoading={isPending}
+            onClick={() => {
+              print();
+            }}
+          >
+            발주서 프린트
+          </Button>
         </div>
       </div>
       <div className="mt-10 p-4 bg-white sm:rounded-xl">
@@ -155,6 +173,41 @@ function Coupon() {
           <DescriptionTerm>배송방법</DescriptionTerm>
           <DescriptionDetails>{order.deliveryMethod.title}</DescriptionDetails>
 
+          <DescriptionTerm>배송상태</DescriptionTerm>
+          <DescriptionDetails>
+            <Badge color="yellow">{order.deliveryStatus}</Badge>
+            {order.deliveryMethod?.type === "QUICK" && (
+              <div key="quick" className="mt-2 flex gap-3">
+                <Button
+                  onClick={() => {
+                    reserve("doobalhero");
+                  }}
+                >
+                  두발히어로(퀵) 수동 배차
+                </Button>
+                <Button
+                  onClick={() => {
+                    reserve("kakao-mobility");
+                  }}
+                >
+                  카카오모빌리티(퀵) 수동 배차
+                </Button>
+              </div>
+            )}
+            {order.deliveryMethod?.type === "DELIVERY" && (
+              <div key="delivery" className="mt-2 flex gap-3">
+                <Button
+                  onClick={() => {
+                    reserve("cj");
+                  }}
+                >
+                  CJ 대한통운 택배 수동 배차
+                </Button>
+                <Button>우체국 택배 수동 배차</Button>
+              </div>
+            )}
+          </DescriptionDetails>
+
           <DescriptionTerm>배송희망일</DescriptionTerm>
           <DescriptionDetails>
             {format(new Date(order.deliveryDate), "yyyy-MM-dd")}
@@ -186,9 +239,14 @@ function Coupon() {
             {order.messageCardText}
             {order.messageCardText && (
               <div className="mt-2">
-                <Button color="zinc" isLoading={isPending} onClick={print}>
-                  출력
-                </Button>
+                <LinkButton
+                  color="zinc"
+                  to={`https://www.1moment.co.kr/message-card?secret=f1d80654-3f7e-49e0-a43e-8678dbb47220&order_id=${orderId}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  메세지 카드 문구 프린트
+                </LinkButton>
               </div>
             )}
           </DescriptionDetails>
