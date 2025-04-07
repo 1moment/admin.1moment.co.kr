@@ -20,9 +20,12 @@ import {
   PaginationPage,
   PaginationPrevious,
 } from "@/components/ui/pagination.tsx";
-import { LinkButton } from "@/components/ui/button.tsx";
+import { Button, LinkButton } from "@/components/ui/button.tsx";
 
 import { useProducts } from "@/hooks/use-products.tsx";
+import { Field, Label } from "@/components/ui/fieldset.tsx";
+import { Select } from "@/components/ui/select.tsx";
+import { Input } from "@/components/ui/input.tsx";
 
 function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,11 +33,41 @@ function Products() {
   const currentPage = Number(searchParams.get("page") || 1);
   const {
     data: { items, meta },
-  } = useProducts({ currentPage });
+  } = useProducts({
+    currentPage,
+    query: searchParams.get("query"),
+    queryType: searchParams.get("queryType"),
+  });
 
   return (
-    <div className="mt-8 p-4 bg-white border border-gray-100 rounded-xl">
-      <Table>
+    <div className="py-4 bg-white rounded-xl">
+      <form className="mb-4 px-4 items-end flex">
+        <div className="grow flex flex-col items-start justify-start gap-3">
+          <div className="flex items-center justify-center gap-6">
+            <Field className="shrink-0 w-16">
+              <Label>검색어</Label>
+            </Field>
+            <Select
+              className="max-w-48"
+              name="queryType"
+              defaultValue={searchParams.get("queryType") || "title"}
+            >
+              <option value="title">상품명</option>
+            </Select>
+            <Input
+              className="max-w-80"
+              name="query"
+              placeholder="검색어"
+              defaultValue={searchParams.get("query") as string}
+            />
+          </div>
+        </div>
+        <Button>조회</Button>
+      </form>
+
+      <hr className="border-gray-100" />
+
+      <Table className="mt-4 px-4">
         <TableHead>
           <TableRow>
             <TableHeader className="text-center whitespace-nowrap w-1">
@@ -92,7 +125,7 @@ function Products() {
 export default function ProductsPage() {
   return (
     <React.Fragment>
-      <div className="flex justify-between">
+      <div className="mb-8 flex justify-between">
         <Heading>상품</Heading>
         <div>
           <LinkButton to="/products/create" color="zinc">
@@ -101,7 +134,10 @@ export default function ProductsPage() {
         </div>
       </div>
       <Sentry.ErrorBoundary
-        fallback={(errorData) => <p>{errorData.error.message}</p>}
+        fallback={({ error, componentStack }) => {
+          console.error(error, componentStack);
+          return <p>{(error as Error).message}</p>;
+        }}
       >
         <React.Suspense
           fallback={

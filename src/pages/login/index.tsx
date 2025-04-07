@@ -3,6 +3,8 @@ import { useNavigate } from "react-router";
 import { Field, FieldGroup, Label } from "@/components/ui/fieldset.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
+import { AuthLayout } from "@/components/ui/auth-layout.tsx";
+import { Heading } from "@/components/ui/heading.tsx";
 
 export default function Index() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -50,11 +52,12 @@ export default function Index() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h2 className="mb-6 text-center text-2xl font-bold text-gray-800">
-          관리자 로그인
-        </h2>
+    <AuthLayout className="flex min-h-screen items-center justify-center bg-gray-100">
+      <form
+        className="grid w-full max-w-sm grid-cols-1 gap-8"
+        onSubmit={handleSubmit}
+      >
+        <Heading>관리자 로그인</Heading>
 
         {error && (
           <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
@@ -62,33 +65,31 @@ export default function Index() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <FieldGroup>
-            <Field>
-              <Label>아이디</Label>
-              <Input
-                name="username"
-                required
-                defaultValue=""
-                placeholder="아이디"
-              />
-            </Field>
-            <Field>
-              <Label>비밀번호</Label>
-              <Input
-                type="password"
-                name="password"
-                required
-                defaultValue=""
-                placeholder="아이디"
-              />
-            </Field>
-            <Button type="submit" disabled={isLoading} className="w-full">
-              로그인
-            </Button>
-          </FieldGroup>
-        </form>
-      </div>
-    </div>
+        <FieldGroup>
+          <Field>
+            <Label>아이디</Label>
+            <Input
+              name="username"
+              required
+              defaultValue=""
+              placeholder="아이디"
+            />
+          </Field>
+          <Field>
+            <Label>비밀번호</Label>
+            <Input
+              type="password"
+              name="password"
+              required
+              defaultValue=""
+              placeholder="아이디"
+            />
+          </Field>
+          <Button type="submit" disabled={isLoading} className="w-full">
+            로그인
+          </Button>
+        </FieldGroup>
+      </form>
+    </AuthLayout>
   );
 }

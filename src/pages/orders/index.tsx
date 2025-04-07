@@ -29,7 +29,6 @@ import { Select } from "@/components/ui/select.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
 import { useOrders } from "@/hooks/use-orders.tsx";
-import { Loader2Icon } from "lucide-react";
 
 const currentDate = new Date();
 function Orders() {

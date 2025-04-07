@@ -11,7 +11,7 @@ type Banner = {
   title: string;
   status: "PUBLISHED" | "DRAFT";
   imageUrl?: string;
-  mobileImageUlr?: string;
+  mobileImageUrl?: string;
   position: BannerPostion;
   link?: string;
   sequence: number;

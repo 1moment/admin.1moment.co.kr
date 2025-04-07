@@ -1,14 +1,11 @@
 import * as React from "react";
 import { apiClient } from "@/utils/api-client.ts";
 import * as Sentry from "@sentry/react";
-import { format } from "date-fns/format";
 
-import { useParams } from "react-router";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useNavigate, useParams } from "react-router";
+import { useMutation } from "@tanstack/react-query";
 
 import { Heading, Subheading } from "@/components/ui/heading.tsx";
-import { Input } from "@/components/ui/input.tsx";
-import { FieldGroup, Field, Label } from "@/components/ui/fieldset";
 import { Strong, Text } from "@/components/ui/text";
 import {
   Table,
@@ -20,42 +17,22 @@ import {
 } from "@/components/ui/table.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@/components/ui/link.tsx";
-import { UnplugIcon } from "lucide-react";
+import { ArrowLeftIcon, UnplugIcon } from "lucide-react";
+import PromotionSectionsForm from "@/components/promotion-sections/form.tsx";
+import {
+  usePromotionSection,
+  usePromotionSectionUpdateMutation,
+} from "@/hooks/use-promotion-sections.tsx";
 
 function PromotionSection() {
+  const navigate = useNavigate();
   const params = useParams<{ "promotion-section-id": string }>();
 
-  const promotionSectionId = params["promotion-section-id"];
+  const promotionSectionId = Number(params["promotion-section-id"]);
   const { data: promotionSection, refetch } =
-    useSuspenseQuery<PromotionSection>({
-      queryKey: ["promotion-sections", promotionSectionId],
-      async queryFn() {
-        const response = await apiClient(
-          `/admin/promotion-sections/${promotionSectionId}`,
-        );
-        const result = await response.json();
-        return result;
-      },
-    });
-
-  const { mutate: updateData } = useMutation<
-    PromotionCategory,
-    Error,
-    Pick<Partial<PromotionSection>, "title" | "sequence">
-  >({
-    async mutationFn(data) {
-      const result = await apiClient(
-        `/admin/promotion-sections/${promotionSectionId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        },
-      );
-
-      return await result.json();
-    },
-  });
+    usePromotionSection(promotionSectionId);
+  const { mutate: updateData } =
+    usePromotionSectionUpdateMutation(promotionSectionId);
 
   const { mutate: removeSectionProduct } = useMutation<
     PromotionCategory,
@@ -75,161 +52,117 @@ function PromotionSection() {
   });
 
   const onSubmit = React.useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      const data: Parameters<typeof updateData>[0] = {};
-      const formData = new FormData(event.currentTarget);
-      if (promotionSection.title !== formData.get("title")) {
-        data.title = formData.get("title") as string;
-      }
-
-      if (promotionSection.sequence !== Number(formData.get("sequence"))) {
-        data.sequence = Number(formData.get("sequence"));
-      }
-
+    (data) => {
       updateData(data, {
         onSuccess(data) {
-          console.log(data);
-          alert("성공");
+          refetch();
+          alert("수정하였습니다");
         },
-        onError() {
-          alert("오류");
+        onError(error) {
+          alert(error.message);
         },
       });
     },
     [promotionSection, updateData],
   );
 
-  console.log(promotionSection);
   return (
     <React.Fragment>
-      <div className="flex justify-between">
-        <Heading>맞춤형 추천상품 섹션</Heading>
+      <div className="flex items-center">
+        <Button plain onClick={() => navigate(-1)}>
+          <ArrowLeftIcon width={20} height={20} />
+        </Button>
+        <Heading>{promotionSection.title}</Heading>
       </div>
-      <form
-        id="promotion-category-form"
-        className="mt-8 p-4 border border-gray-100 rounded shadow"
+      <PromotionSectionsForm
+        promotionSection={promotionSection}
         onSubmit={onSubmit}
-      >
-        <section className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-          <div className="space-y-1">
-            <Subheading>기본정보</Subheading>
-            <Text>현재 섹션의 기본 정보</Text>
-          </div>
-          <div>
-            <FieldGroup>
-              <Field>
-                <Label>
-                  타이틀&nbsp;<span className="text-red-400">*</span>
-                </Label>
-                <Input name="title" defaultValue={promotionSection.title} />
-              </Field>
-
-              <Field>
-                <Label>순서</Label>
-                <Input
-                  name="sequence"
-                  defaultValue={promotionSection.sequence}
-                />
-              </Field>
-
-              <Field>
-                <Label>생성일</Label>
-                <Text>
-                  {format(
-                    new Date(promotionSection.createdAt),
-                    "yyyy-MM-dd hh:mm:ss",
-                  )}
-                </Text>
-              </Field>
-            </FieldGroup>
-
-            <div className="mt-6 flex justify-end gap-1">
-              <Button type="submit">저장</Button>
-            </div>
-          </div>
-        </section>
-      </form>
-
-      <section className="mt-8 p-4 border border-gray-100 rounded shadow">
-        <div className="flex justify-between">
+      />
+      <div className="grid grid-cols-1 gap-x-8 gap-y-8 py-10 md:grid-cols-3">
+        <div className="px-4 sm:px-0">
           <Subheading>연결된 상품</Subheading>
-          <div>
+          <Text>상품에 대한 기본 정보</Text>
+        </div>
+
+        <div className="px-4 py-6 sm:p-8 bg-white ring-1 shadow-xs ring-gray-900/5 sm:rounded-xl md:col-span-2">
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeader>상품ID</TableHeader>
+                <TableHeader>상품이미지</TableHeader>
+                <TableHeader>상품명</TableHeader>
+                <TableHeader className="text-center">순서</TableHeader>
+                <TableHeader className="w-1 whitespace-nowrap">
+                  &nbsp;
+                </TableHeader>
+              </TableRow>
+            </TableHead>
+            {promotionSection.products.length > 0 ? (
+              <TableBody>
+                {promotionSection.products.map((product) => (
+                  <TableRow key={`product-${product.id}`}>
+                    <TableCell>
+                      <Link
+                        className="underline tabular-nums"
+                        to={`/products/${product.product.id}`}
+                      >
+                        {product.product.id}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <img
+                        width={80}
+                        height={80}
+                        src={product.product.imageUrl}
+                        alt=""
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Strong>{product.product.title}</Strong>
+                    </TableCell>
+                    <TableCell className="text-center tabular-nums">
+                      <Strong>{product.sequence}</Strong>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        color="red"
+                        onClick={() => {
+                          removeSectionProduct(
+                            {
+                              sectionId: promotionSection.id,
+                              productId: product.product.id,
+                            },
+                            {
+                              onSuccess() {
+                                refetch();
+                                alert("선택한 상품과 연결을 해제하였습니다");
+                              },
+                            },
+                          );
+                        }}
+                      >
+                        <UnplugIcon data-slot="icon" />
+                        연결끊기
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            ) : (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={4} className="h-24 text-center">
+                    연결된 상품이 없습니다
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
+          </Table>
+          <div className="mt-4 flex justify-end">
             <Button>추가</Button>
           </div>
         </div>
-        <Table className="mt-8">
-          <TableHead>
-            <TableRow>
-              <TableHeader>상품ID</TableHeader>
-              <TableHeader>상품이미지</TableHeader>
-              <TableHeader>상품명</TableHeader>
-              <TableHeader className="text-center">순서</TableHeader>
-              <TableHeader className="w-1 whitespace-nowrap">
-                &nbsp;
-              </TableHeader>
-            </TableRow>
-          </TableHead>
-          {promotionSection.products.length > 0 ? (
-            <TableBody>
-              {promotionSection.products.map((product) => (
-                <TableRow key={`product-${product.id}`}>
-                  <TableCell>
-                    <Link
-                      className="underline tabular-nums"
-                      to={`/products/${product.product.id}`}
-                    >
-                      {product.product.id}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <img
-                      width={80}
-                      height={80}
-                      src={product.product.imageUrl}
-                      alt=""
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Strong>{product.product.title}</Strong>
-                  </TableCell>
-                  <TableCell className="text-center tabular-nums">
-                    <Strong>{product.sequence}</Strong>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      color="red"
-                      onClick={() => {
-                        removeSectionProduct(
-                          {
-                            sectionId: promotionSection.id,
-                            productId: product.product.id,
-                          },
-                          {
-                            onSuccess() {
-                              refetch();
-                              alert("선택한 상품과 연결을 해제하였습니다");
-                            },
-                          },
-                        );
-                      }}
-                    >
-                      <UnplugIcon data-slot="icon" />
-                      연결끊기
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          ) : (
-            <TableBody>
-              <TableRow>
-                <TableCell colSpan={3}>연결된 상품이 없습니다</TableCell>
-              </TableRow>
-            </TableBody>
-          )}
-        </Table>
-      </section>
+      </div>
     </React.Fragment>
   );
 }
@@ -238,12 +171,13 @@ export default function PromotionSectionPage() {
   return (
     <React.Fragment>
       <Sentry.ErrorBoundary
-        fallback={(errorData) => <p>{errorData.error.message}</p>}
+        fallback={({ error, componentStack }) => {
+          console.error(error, componentStack);
+          return <p>{(error as Error).message}</p>;
+        }}
       >
         <React.Suspense
-          fallback={
-            <div className="p-8 text-center">사용자정보를 불러오는 중...</div>
-          }
+          fallback={<div className="p-8 text-center">불러오는 중...</div>}
         >
           <PromotionSection />
         </React.Suspense>

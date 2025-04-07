@@ -15,13 +15,22 @@ export type ProductMutationData = Pick<
 export function useProducts({
   currentPage = 1,
   limit = 10,
-}: { currentPage?: number; limit?: number }) {
+  queryType,
+  query,
+}: {
+  currentPage?: number;
+  limit?: number;
+  queryType?: string;
+  query?: string;
+}) {
   return useSuspenseQuery<{ items: Product[] }>({
     queryKey: ["products", { page: currentPage, limit }],
     async queryFn() {
       const params = new URLSearchParams();
       params.set("page", `${currentPage}`);
       params.set("limit", `${limit}`);
+      if (queryType) params.set("queryType", queryType);
+      if (query) params.set("query", query);
 
       const response = await apiClient(`/admin/products?${params.toString()}`);
       const result = await response.json();

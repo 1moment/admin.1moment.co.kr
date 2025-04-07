@@ -10,6 +10,8 @@ const AdminUserPage = React.lazy(
 );
 
 const BannersPage = React.lazy(() => import("./pages/banners"));
+const BannerPage = React.lazy(() => import("./pages/banners/[banner-id]"));
+const BannerCreatePage = React.lazy(() => import("./pages/banners/create"));
 
 const CouponsPage = React.lazy(() => import("./pages/coupons"));
 const CouponPage = React.lazy(() => import("./pages/coupons/[coupon-id]"));
@@ -27,31 +29,48 @@ const ProductCategoriesPage = React.lazy(
 const ProductCategoryPage = React.lazy(
   () => import("./pages/product-categories/[product-cateogry-id]"),
 );
-const ProductCategoryCreatePage = React.lazy(() => import('./pages/product-categories/create'))
+const ProductCategoryCreatePage = React.lazy(
+  () => import("./pages/product-categories/create"),
+);
 
 const ProductContentBlocksPage = React.lazy(
   () => import("./pages/product-content-blocks"),
 );
-const ProductContentBlockCreatePage = React.lazy(() => import('./pages/product-content-blocks/create'))
+const ProductContentBlockCreatePage = React.lazy(
+  () => import("./pages/product-content-blocks/create"),
+);
 const ProductContentBlockPage = React.lazy(
   () => import("./pages/product-content-blocks/[product-content-block-id]"),
 );
 
 const ProductsPage = React.lazy(() => import("./pages/products"));
 const ProductPage = React.lazy(() => import("./pages/products/[product-id]"));
-const ProductCreatePage = React.lazy(() => import('./pages/products/create'))
+const ProductCreatePage = React.lazy(() => import("./pages/products/create"));
 
-const PromotionCategoriesPage = React.lazy(() => import('./pages/promotion-categories'))
-const PromotionCategoryPage = React.lazy(() => import('./pages/promotion-categories/[promotion-category-id]'))
+const PromotionCategoriesPage = React.lazy(
+  () => import("./pages/promotion-categories"),
+);
+const PromotionCategoryPage = React.lazy(
+  () => import("./pages/promotion-categories/[promotion-category-id]"),
+);
 
-const PromotionSectionsPage = React.lazy(() => import('./pages/promotion-sections'))
-const PromotionSectionPage = React.lazy(() => import('./pages/promotion-sections/[promotion-section-id]'))
+const PromotionSectionsPage = React.lazy(
+  () => import("./pages/promotion-sections"),
+);
+const PromotionSectionCreatePage = React.lazy(() => import("./pages/promotion-sections/create"));
+const PromotionSectionPage = React.lazy(
+  () => import("./pages/promotion-sections/[promotion-section-id]"),
+);
 
 const ReviewsPage = React.lazy(() => import("./pages/reviews"));
 
-const SnsSectionsPage = React.lazy(() => import('./pages/sns-sections'));
-const SnsSectionCreatePage = React.lazy(() => import('./pages/sns-sections/create'));
-const SnsSectionPage = React.lazy(() => import('./pages/sns-sections/[sns-section-id]'));
+const SnsSectionsPage = React.lazy(() => import("./pages/sns-sections"));
+const SnsSectionCreatePage = React.lazy(
+  () => import("./pages/sns-sections/create"),
+);
+const SnsSectionPage = React.lazy(
+  () => import("./pages/sns-sections/[sns-section-id]"),
+);
 
 const UsersPage = React.lazy(() => import("./pages/users"));
 const UserPage = React.lazy(() => import("./pages/users/[user-id]"));
@@ -70,7 +89,11 @@ export default function AppRoutes() {
             <Route path=":admin-user-id" element={<AdminUserPage />} />
           </Route>
 
-          <Route path="banners" element={<BannersPage />} />
+          <Route path="banners">
+            <Route path="" element={<BannersPage />} />
+            <Route path="create" element={<BannerCreatePage />} />
+            <Route path=":banner-id" element={<BannerPage />} />
+          </Route>
 
           <Route path="coupons">
             <Route path="" element={<CouponsPage />} />
@@ -112,12 +135,19 @@ export default function AppRoutes() {
 
           <Route path="promotion-categories">
             <Route path="" element={<PromotionCategoriesPage />} />
-            <Route path=":promotion-category-id" element={<PromotionCategoryPage />} />
+            <Route
+              path=":promotion-category-id"
+              element={<PromotionCategoryPage />}
+            />
           </Route>
 
           <Route path="promotion-sections">
             <Route path="" element={<PromotionSectionsPage />} />
-            <Route path=":promotion-section-id" element={<PromotionSectionPage />} />
+            <Route path="create" element={<PromotionSectionCreatePage />} />
+            <Route
+              path=":promotion-section-id"
+              element={<PromotionSectionPage />}
+            />
           </Route>
 
           <Route path="users">
