@@ -1,40 +1,31 @@
 import * as React from "react";
 import * as Sentry from "@sentry/react";
-import { useParams, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { ArrowLeftIcon } from "lucide-react";
 
 import { Heading } from "@/components/ui/heading.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import PromotionCategoriesForm from "@/components/promotion-categories/form.tsx";
 
-import {
-  usePromotionCategory,
-  usePromotionCategoryUpdateMutation,
-} from "@/hooks/use-promotion-categories.tsx";
+import { usePromotionCategoryCreateMutation } from "@/hooks/use-promotion-categories.tsx";
 
 function PromotionCategory() {
   const navigate = useNavigate();
-  const params = useParams<{ "promotion-category-id": string }>();
-
-  const promotionCategoryId = params["promotion-category-id"];
-  const { data: promotionCategory, refetch } =
-    usePromotionCategory(promotionCategoryId);
-  const { mutate: updateData, isPending } =
-    usePromotionCategoryUpdateMutation(promotionCategoryId);
+  const { mutate: create, isPending } = usePromotionCategoryCreateMutation();
 
   const onSubmit = React.useCallback(
     (data) => {
-      updateData(data, {
+      create(data, {
         onSuccess(data) {
-          refetch();
-          alert("맞춤형 추천상품 섹션을 수정하였습니다");
+          alert("맞춤형 추천상품 섹션을 추가하였습니다");
+          navigate(`/promotion-categories/${data.id}`);
         },
         onError(error) {
           alert(error.message);
         },
       });
     },
-    [promotionCategory, updateData],
+    [create, navigate],
   );
 
   return (
@@ -43,13 +34,9 @@ function PromotionCategory() {
         <Button plain onClick={() => navigate(-1)}>
           <ArrowLeftIcon width={20} height={20} />
         </Button>
-        <Heading>{promotionCategory.title}</Heading>
+        <Heading>맞춤형 추천상품 섹션 추가</Heading>
       </div>
-      <PromotionCategoriesForm
-        isLoading={isPending}
-        promotionCategory={promotionCategory}
-        onSubmit={onSubmit}
-      />
+      <PromotionCategoriesForm isLoading={isPending} onSubmit={onSubmit} />
     </React.Fragment>
   );
 }

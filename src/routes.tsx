@@ -53,6 +53,9 @@ const PromotionCategoriesPage = React.lazy(
 const PromotionCategoryPage = React.lazy(
   () => import("./pages/promotion-categories/[promotion-category-id]"),
 );
+const PromotionCategoryCreatePage = React.lazy(
+    () => import("./pages/promotion-categories/create"),
+);
 
 const PromotionSectionsPage = React.lazy(
   () => import("./pages/promotion-sections"),
@@ -135,6 +138,7 @@ export default function AppRoutes() {
 
           <Route path="promotion-categories">
             <Route path="" element={<PromotionCategoriesPage />} />
+            <Route path="create" element={<PromotionCategoryCreatePage />} />
             <Route
               path=":promotion-category-id"
               element={<PromotionCategoryPage />}

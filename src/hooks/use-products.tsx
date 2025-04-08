@@ -17,11 +17,13 @@ export function useProducts({
   limit = 10,
   queryType,
   query,
+  isAdditional,
 }: {
   currentPage?: number;
   limit?: number;
   queryType?: string;
   query?: string;
+  isAdditional?: boolean;
 }) {
   return useSuspenseQuery<{ items: Product[] }>({
     queryKey: ["products", { page: currentPage, limit }],
@@ -31,6 +33,7 @@ export function useProducts({
       params.set("limit", `${limit}`);
       if (queryType) params.set("queryType", queryType);
       if (query) params.set("query", query);
+      if (isAdditional) params.set("isAdditional", "true");
 
       const response = await apiClient(`/admin/products?${params.toString()}`);
       const result = await response.json();

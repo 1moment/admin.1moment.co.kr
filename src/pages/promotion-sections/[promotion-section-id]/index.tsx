@@ -23,10 +23,12 @@ import {
   usePromotionSection,
   usePromotionSectionUpdateMutation,
 } from "@/hooks/use-promotion-sections.tsx";
+import ProductsDialog from "@/components/promotion-sections/products-dialog.tsx";
 
 function PromotionSection() {
   const navigate = useNavigate();
   const params = useParams<{ "promotion-section-id": string }>();
+  const [openProducts, setOpenProducts] = React.useState(false);
 
   const promotionSectionId = Number(params["promotion-section-id"]);
   const { data: promotionSection, refetch } =
@@ -159,10 +161,18 @@ function PromotionSection() {
             )}
           </Table>
           <div className="mt-4 flex justify-end">
-            <Button>추가</Button>
+            <Button onClick={() => setOpenProducts(true)}>추가</Button>
           </div>
         </div>
       </div>
+      <ProductsDialog
+        selectedProducts={promotionSection.products.map(
+          (product) => product.product.id,
+        )}
+        open={openProducts}
+        setOpen={setOpenProducts}
+        onSelect={() => refetch()}
+      />
     </React.Fragment>
   );
 }

@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/react";
 import { generatePagination } from "@/utils/generate-pagination-array.ts";
 import { useSearchParams, Link } from "react-router";
 
+import * as Headless from "@headlessui/react";
 import { Heading } from "@/components/ui/heading.tsx";
 import {
   Table,
@@ -23,26 +24,32 @@ import {
 import { Button, LinkButton } from "@/components/ui/button.tsx";
 
 import { useProducts } from "@/hooks/use-products.tsx";
-import { Field, Label } from "@/components/ui/fieldset.tsx";
+import { Field, Fieldset, Label, Legend } from "@/components/ui/fieldset.tsx";
 import { Select } from "@/components/ui/select.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { Checkbox } from "@/components/ui/checkbox.tsx";
+import { Navbar, NavbarItem, NavbarSection } from "@/components/ui/navbar.tsx";
+import { createSearchParamsFromExisting } from "@/utils/query-prams-helper.ts";
 
 function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page") || 1);
+  const status = searchParams.get("status");
   const {
     data: { items, meta },
   } = useProducts({
     currentPage,
     query: searchParams.get("query"),
     queryType: searchParams.get("queryType"),
+    isAdditional: searchParams.get("isAdditional") === "on",
   });
 
   return (
-    <div className="py-4 bg-white rounded-xl">
-      <form className="mb-4 px-4 items-end flex">
-        <div className="grow flex flex-col items-start justify-start gap-3">
+    <React.Fragment>
+      <form className="mb-8 p-4 items-end flex bg-white sm:rounded-xl">
+        <Fieldset className="grow flex flex-col items-start justify-start gap-3">
+          <Legend>검색조건</Legend>
           <div className="flex items-center justify-center gap-6">
             <Field className="shrink-0 w-16">
               <Label>검색어</Label>
@@ -61,64 +68,117 @@ function Products() {
               defaultValue={searchParams.get("query") as string}
             />
           </div>
-        </div>
-        <Button>조회</Button>
+
+          <div className="flex items-center justify-center gap-6">
+            <Headless.Field className="shrink-0 flex items-center gap-6">
+              <Label>추가전용상품</Label>
+              <Checkbox
+                name="isAdditional"
+                defaultChecked={searchParams.get("isAdditional") === "on"}
+                className="mt-0"
+              />
+            </Headless.Field>
+          </div>
+        </Fieldset>
+        <Button type="submit">조회</Button>
       </form>
 
-      <hr className="border-gray-100" />
-
-      <Table className="mt-4 px-4">
-        <TableHead>
-          <TableRow>
-            <TableHeader className="text-center whitespace-nowrap w-1">
-              ID
-            </TableHeader>
-            <TableHeader>상품 정보</TableHeader>
-            <TableHeader>이미지</TableHeader>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {items?.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell className="text-center">
-                <Link className="underline" to={`/products/${product.id}`}>
-                  {product.id}
-                </Link>
-              </TableCell>
-              <TableCell>
-                <Text>{product.slug}</Text>
-                <Strong>{product.title}</Strong>
-                <Text>{product.description}</Text>
-              </TableCell>
-              <TableCell>
-                <img className="w-20 h-20" src={product.imageUrl} alt="" />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      <Pagination className="mt-8">
-        <PaginationPrevious>이전</PaginationPrevious>
-        <PaginationList>
-          {generatePagination(meta.totalPages, meta.page).map((page) => (
-            <PaginationPage
-              key={`page-${page}`}
-              onClick={() => {
-                setSearchParams((searchParams) => {
-                  searchParams.set("page", `${page}`);
-                  return searchParams;
-                });
-              }}
-              current={page === currentPage}
+      <div className="bg-white rounded-xl">
+        <Navbar className="px-4">
+          <NavbarSection>
+            <NavbarItem
+              to="?"
+              current={status !== "PUBLISHED" && status !== "DRAFT"}
             >
-              {page}
-            </PaginationPage>
-          ))}
-        </PaginationList>
-        <PaginationNext>다음</PaginationNext>
-      </Pagination>
-    </div>
+              ALL
+            </NavbarItem>
+            <NavbarItem
+              to={createSearchParamsFromExisting(
+                searchParams,
+                ["query", "queryType", "isAdditional"],
+                { status: "PUBLISHED" },
+              )}
+              current={status === "PUBLISHED"}
+            >
+              PUBLISHED
+            </NavbarItem>
+            <NavbarItem
+              to={createSearchParamsFromExisting(
+                searchParams,
+                ["query", "queryType", "isAdditional"],
+                { status: "DRAFT" },
+              )}
+              current={status === "DRAFT"}
+            >
+              DRAFT
+            </NavbarItem>
+          </NavbarSection>
+        </Navbar>
+        <hr className="border-gray-100" />
+
+        <Table className="mt-4 px-4">
+          <TableHead>
+            <TableRow>
+              <TableHeader className="text-center whitespace-nowrap w-1">
+                ID
+              </TableHeader>
+              <TableHeader className="text-center">이미지</TableHeader>
+              <TableHeader>상품 정보</TableHeader>
+              <TableHeader>옵션</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {items?.map((product) => (
+              <TableRow key={product.id}>
+                <TableCell className="text-center">
+                  <Link className="underline" to={`/products/${product.id}`}>
+                    {product.id}
+                  </Link>
+                </TableCell>
+                <TableCell>
+                  <img className="w-20 h-20" src={product.imageUrl} alt="" />
+                </TableCell>
+                <TableCell>
+                  <Text>{product.slug}</Text>
+                  <Strong>{product.title}</Strong>
+                  <Text>{product.description}</Text>
+                </TableCell>
+                <TableCell>
+                  {Array.isArray(product.items) && product.items.length > 0 && (
+                    <ul>
+                      {product.items.map((item) => (
+                        <li key={`item-${item.id}`}>{item.title}&nbsp;(재고: {item.quantityInStock}개)</li>
+                      ))}
+                    </ul>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        <Pagination className="mt-8 p-4">
+          <PaginationPrevious>이전</PaginationPrevious>
+          <PaginationList>
+            {generatePagination(meta.totalPages, meta.page).map((page) => (
+              <PaginationPage
+                key={`page-${page}`}
+                onClick={() => {
+                  setSearchParams((searchParams) => {
+                    searchParams.set("page", `${page}`);
+                    return searchParams;
+                  });
+                }}
+                current={page === currentPage}
+              >
+                {page}
+              </PaginationPage>
+            ))}
+          </PaginationList>
+          <PaginationNext>다음</PaginationNext>
+        </Pagination>
+      </div>
+    </React.Fragment>
   );
 }
 

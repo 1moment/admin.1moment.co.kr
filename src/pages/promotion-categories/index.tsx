@@ -1,8 +1,6 @@
 import * as React from "react";
-import { apiClient } from "@/utils/api-client.ts";
 import { format } from "date-fns/format";
 import * as Sentry from "@sentry/react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router";
 
 import { Heading } from "@/components/ui/heading.tsx";
@@ -15,6 +13,8 @@ import {
   TableRow,
 } from "@/components/ui/table.tsx";
 import { Link } from "@/components/ui/link";
+import { usePromotionCategories } from "@/hooks/use-promotion-categories.tsx";
+import { LinkButton } from "@/components/ui/button.tsx";
 
 function PromotionCategories() {
   const [searchParams] = useSearchParams();
@@ -22,37 +22,25 @@ function PromotionCategories() {
   const currentPage = Number(searchParams.get("page") || 1);
   const {
     data: { items },
-  } = useSuspenseQuery<{ items: PromotionCategory[] }>({
-    queryKey: ["promotion-categories", { page: currentPage }],
-    async queryFn() {
-      const params = new URLSearchParams();
-      params.set("page", `${currentPage}`);
-      const response = await apiClient(
-        `/admin/promotion-categories?${params.toString()}`,
-      );
-      const result = await response.json();
-      return result;
-    },
-  });
+  } = usePromotionCategories({ currentPage });
 
   return (
     <div className="py-4 bg-white rounded-xl">
-      <Table>
+      <Table className="px-4">
         <TableHead>
           <TableRow>
             <TableHeader className="w-1 whitespace-nowrap text-center">
               식별자
             </TableHeader>
             <TableHeader className="w-1 whitespace-nowrap text-center">
-              연결된 카테고리
+              이미지
             </TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">이미지</TableHeader>
             <TableHeader>타이틀</TableHeader>
             <TableHeader className="w-1 whitespace-nowrap text-center">
               순서
             </TableHeader>
             <TableHeader className="w-1 whitespace-nowrap text-center">
-              이미지
+              연결된 카테고리
             </TableHeader>
             <TableHeader className="w-1 whitespace-nowrap text-center">
               생성일
@@ -73,6 +61,17 @@ function PromotionCategories() {
                   {promotionCategory.id}
                 </Link>
               </TableCell>
+              <TableCell className="w-32">
+                <img
+                  className="border border-[#f4f4f4] rounded-full"
+                  src={promotionCategory.imageUrl}
+                  alt=""
+                />
+              </TableCell>
+              <TableCell>{promotionCategory.title}</TableCell>
+              <TableCell className="text-center">
+                {promotionCategory.seq}
+              </TableCell>
               <TableCell>
                 <div className="flex justify-center">
                   <Link
@@ -83,13 +82,6 @@ function PromotionCategories() {
                   </Link>
                 </div>
               </TableCell>
-              <TableCell className="text-center">
-                <img className="w-10 h-10" src={promotionCategory.imageUrl} alt="" />
-              </TableCell>
-              <TableCell>{promotionCategory.title}</TableCell>
-              <TableCell className="text-center">
-                {promotionCategory.seq}
-              </TableCell>
               <TableCell className="text-center tabular-nums">
                 {format(
                   new Date(promotionCategory.createdAt),
@@ -98,8 +90,8 @@ function PromotionCategories() {
               </TableCell>
               <TableCell className="text-center tabular-nums">
                 {format(
-                    new Date(promotionCategory.updatedAt),
-                    "yyyy-MM-dd HH:mm:ss",
+                  new Date(promotionCategory.updatedAt),
+                  "yyyy-MM-dd HH:mm:ss",
                 )}
               </TableCell>
             </TableRow>
@@ -113,9 +105,19 @@ function PromotionCategories() {
 export default function PromotionCategoriesPage() {
   return (
     <React.Fragment>
-      <Heading className="mb-8">맞춤형 추천상품 섹션</Heading>
+      <div className="mb-8 flex justify-between">
+        <Heading>맞춤형 추천상품 섹션</Heading>
+        <div>
+          <LinkButton to="/promotion-categories/create" color="zinc">
+            추가
+          </LinkButton>
+        </div>
+      </div>
       <Sentry.ErrorBoundary
-        fallback={(errorData) => <p>{errorData.error.message}</p>}
+        fallback={({ error, componentStack }) => {
+          console.error(error, componentStack);
+          return <p>{(error as Error).message}</p>;
+        }}
       >
         <React.Suspense
           fallback={

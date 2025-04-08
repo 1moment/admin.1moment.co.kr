@@ -46,7 +46,7 @@ export function usePromotionSection(promotionSectionId: number) {
 export function usePromotionSectionCreateMutation() {
   return useMutation<PromotionSection, Error, PromotionSectionMutationData>({
     async mutationFn(data) {
-      const response = await apiClient('/admin/promotion-sections', {
+      const response = await apiClient("/admin/promotion-sections", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -80,6 +80,25 @@ export function usePromotionSectionUpdateMutation(promotionSectionId: number) {
       }
 
       return result;
+    },
+  });
+}
+
+export function usePromotionSectionAddProduct(promotionSectionId: number) {
+  return useMutation<
+    PromotionCategory,
+    Error,
+    { productId: number }
+  >({
+    async mutationFn(data) {
+      const result = await apiClient(
+        `/admin/promotion-sections/${promotionSectionId}/products/${data.productId}`,
+        {
+          method: "CREATE",
+        },
+      );
+
+      return await result.json();
     },
   });
 }
