@@ -1,7 +1,9 @@
 import * as React from "react";
+import * as Sentry from "@sentry/react";
 import { apiClient } from "@/utils/api-client.ts";
 import { generatePagination } from "@/utils/generate-pagination-array.ts";
 import { format } from "date-fns/format";
+
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router";
 
@@ -14,7 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import { Strong, Text } from "@/components/ui/text.tsx";
 import {
   Pagination,
   PaginationList,
@@ -23,7 +24,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination.tsx";
 import { Link } from "@/components/ui/link";
-import { Switch } from "@/components/ui/switch.tsx";
 
 function UserCoupons() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -45,8 +45,8 @@ function UserCoupons() {
   });
 
   return (
-    <div className="p-4 border border-gray-100 rounded">
-      <Table>
+    <div className="bg-white rounded-xl">
+      <Table className="mt-3 px-4">
         <TableHead>
           <TableRow>
             <TableHeader className="w-1 whitespace-nowrap text-center">
@@ -99,7 +99,9 @@ function UserCoupons() {
               <TableCell>{userCoupon.coupon.title}</TableCell>
               <TableCell className="text-center tabular-nums">
                 {userCoupon.order && (
-                    <Link to={`/orders/${userCoupon.order.id}`}>{userCoupon.order.id}</Link>
+                  <Link to={`/orders/${userCoupon.order.id}`}>
+                    {userCoupon.order.id}
+                  </Link>
                 )}
                 {userCoupon.usedAt
                   ? format(new Date(userCoupon.usedAt), "yyyy-MM-dd HH:mm:ss")
@@ -121,7 +123,7 @@ function UserCoupons() {
         </TableBody>
       </Table>
 
-      <Pagination className="mt-8">
+      <Pagination className="p-4">
         <PaginationPrevious>이전</PaginationPrevious>
         <PaginationList>
           {generatePagination(meta.totalPages, meta.page).map((page) => (
@@ -148,14 +150,21 @@ function UserCoupons() {
 export default function UserCouponsPage() {
   return (
     <React.Fragment>
-      <Heading className="mb-8">쿠폰</Heading>
-      <React.Suspense
-        fallback={
-          <div className="p-8 text-center">쿠폰 목록을 불러오는 중...</div>
-        }
+      <Heading className="mb-8">쿠폰 발급 현황</Heading>
+      <Sentry.ErrorBoundary
+        fallback={({ error, componentStack }) => {
+          console.error(error, componentStack);
+          return <p>{(error as Error).message}</p>;
+        }}
       >
-        <UserCoupons />
-      </React.Suspense>
+        <React.Suspense
+          fallback={
+            <div className="p-8 text-center">쿠폰 목록을 불러오는 중...</div>
+          }
+        >
+          <UserCoupons />
+        </React.Suspense>
+      </Sentry.ErrorBoundary>
     </React.Fragment>
   );
 }

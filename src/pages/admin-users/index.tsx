@@ -1,7 +1,4 @@
 import * as React from "react";
-import { apiClient } from "@/utils/api-client.ts";
-
-import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button.tsx";
 import { Heading } from "@/components/ui/heading.tsx";
@@ -17,12 +14,7 @@ import { Switch } from "@/components/ui/switch.tsx";
 import CreateDialog from "@/components/admin-users/create-dialog.tsx";
 import { Link } from "@/components/ui/link.tsx";
 
-interface AdminUser {
-  id: number;
-  username: string;
-  name: string;
-  role: string;
-}
+import { useAdminUsers } from "@/hooks/use-admin-users.tsx";
 
 export default function AdminUserPage() {
   return (
@@ -40,15 +32,12 @@ export default function AdminUserPage() {
 }
 
 function AdminUserTable() {
-  const { data } = useSuspenseQuery<AdminUser[]>({
-    queryKey: ["admin-users"],
-    queryFn: () => apiClient("/admin/admin-users").then((res) => res.json()),
-  });
+  const { data, refetch } = useAdminUsers();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
 
   return (
-    <div className="">
+    <div className="mt-8 p-4 bg-white border border-gray-100 rounded-xl">
       <Table>
         <TableHead>
           <TableRow>
@@ -64,7 +53,9 @@ function AdminUserTable() {
           {data?.map((user) => (
             <TableRow key={user.id}>
               <TableCell>
-                <Link className="underline" to={`/admin-users/${user.id}`}>{user.username}</Link>
+                <Link className="underline" to={`/admin-users/${user.id}`}>
+                  {user.username}
+                </Link>
               </TableCell>
               <TableCell>{user.name}</TableCell>
               <TableCell>{user.role}</TableCell>
@@ -81,6 +72,7 @@ function AdminUserTable() {
         <Button onClick={() => setIsCreateDialogOpen(true)}>관리자 추가</Button>
       </div>
       <CreateDialog
+        refetch={refetch}
         isOpen={isCreateDialogOpen}
         setIsOpen={setIsCreateDialogOpen}
       />

@@ -2,12 +2,26 @@ type AdminUser = {
   id: number;
   name: string;
   username: string;
-  role: "ADMIN" | "MANAGER" | "FLORIST";
+  role: string;
+  isActive: boolean;
+};
+
+type Banner = {
+  id: number;
+  title: string;
+  status: "PUBLISHED" | "DRAFT";
+  imageUrl?: string;
+  mobileImageUrl?: string;
+  position: BannerPostion;
+  link?: string;
+  sequence: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 type ProductCategory = {
   id: number;
-  parentId: number;
+  parentId: number | null;
   title: string;
   seq: number; // 순서
   slug: string;
@@ -31,7 +45,10 @@ type Product = {
   additionalGroupId: number;
   bottomContentBlockId: number;
   items: ProductItem[];
-  categories: ProductCategory[];
+  categories: {
+    id: number;
+    category: ProductCategory;
+  }[];
   createdAt: string;
   updatedAt: string;
 };
@@ -42,6 +59,15 @@ type ProductItem = {
   originPrice?: number;
   price: number;
   quantityInStock: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type ProductContentBlock = {
+  id: number;
+  title: string;
+  content: string;
+  isUsed: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -121,12 +147,49 @@ type Payment = {
   updatedAt: string;
 };
 
+type PromotionCategory = {
+  id: number;
+  title: string;
+  imageUrl: string;
+  seq: number;
+  category: ProductCategory;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type PromotionSection = {
+  id: number;
+  title: string;
+  sequence: number;
+  products: {
+    id: number;
+    sequence: number;
+    product: Product;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 type Point = {
   id: number;
   note: string;
   amount: number;
   orders: Order[];
   user: User;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type SnsSection = {
+  id: number;
+  title: string;
+  status: string;
+  sequence: number;
+  displayedHandlerName;
+  imageUrl: string;
+  product: Product;
   createdAt: string;
   updatedAt: string;
 };
@@ -138,4 +201,10 @@ enum DeliveryStatus {
   WAITING,
   CANCELED,
   FAILED,
+}
+
+enum BannerPostion {
+  TOP = "TOP",
+  MIDDLE = "MIDDLE",
+  BOTTOM = "BOTTOM",
 }

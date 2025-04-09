@@ -4,6 +4,7 @@ backend:
     build:
       commands:
         - npm install -g pnpm
+        - pnpm config set store-dir .pnpm-store
         - pnpm install
 frontend:
   phases:
@@ -17,3 +18,4 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
+      - .pnpm-store/**/*

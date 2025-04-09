@@ -50,8 +50,8 @@ function Point() {
   });
 
   return (
-    <div>
-      <Table className="mt-8">
+    <div className="py-4 bg-white rounded-xl">
+      <Table className="px-4">
         <TableHead>
           <TableRow>
             <TableHeader className="w-1 whitespace-nowrap text-center">
@@ -59,8 +59,8 @@ function Point() {
             </TableHeader>
             <TableHeader>내용</TableHeader>
             <TableHeader className="text-center">금액</TableHeader>
-            <TableHeader className="text-center">적립일자</TableHeader>
             <TableHeader className="text-center">사용자</TableHeader>
+            <TableHeader className="text-center">적립일자</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -74,18 +74,18 @@ function Point() {
                 {point.amount.toLocaleString("ko-KR")}
               </TableCell>
               <TableCell className="text-center">
-                {format(new Date(point.createdAt), "yyyy-MM-dd HH:mm:ss")}
-              </TableCell>
-              <TableCell className="text-center">
                 <Link className="underline" to={`/users/${point.user.id}`}>
                   {point.user.id}
                 </Link>
+              </TableCell>
+              <TableCell className="text-center">
+                {format(new Date(point.createdAt), "yyyy-MM-dd HH:mm:ss")}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-      <Pagination className="mt-8">
+      <Pagination className="px-4 mt-8">
         <PaginationPrevious>이전</PaginationPrevious>
         <PaginationList>
           {generatePagination(meta.totalPages, meta.page).map((page) => (
@@ -112,7 +112,9 @@ function Point() {
 export default function PointsPage() {
   return (
     <React.Fragment>
-      <Heading>적립금 내역</Heading>
+      <div className="mb-8 flex items-start justify-between">
+        <Heading>상품 카테고리</Heading>
+      </div>
       <React.Suspense
         fallback={
           <div className="p-8 text-center">적립금내역을 불러오는 중...</div>

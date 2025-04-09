@@ -35,7 +35,11 @@ import {
   ReceiptTextIcon,
   StarIcon,
   SquareStackIcon,
-  TicketIcon, CoinsIcon, HandCoinsIcon, SmilePlusIcon, TicketsIcon,
+  TicketIcon,
+  SmilePlusIcon,
+  TicketsIcon,
+  LayoutTemplateIcon,
+  HomeIcon,
 } from "lucide-react";
 
 import UserContext from "./contexts/user-context.ts";
@@ -46,6 +50,14 @@ export default function Layout({ children }) {
     <SidebarLayout
       sidebar={
         <Sidebar>
+          <SidebarHeader>
+            <SidebarSection className="max-lg:hidden">
+              <SidebarItem to="/">
+                <HomeIcon />
+                <SidebarLabel>메인</SidebarLabel>
+              </SidebarItem>
+            </SidebarSection>
+          </SidebarHeader>
           <SidebarBody>
             <SidebarSection className="max-lg:hidden">
               <SidebarHeading>상품관련</SidebarHeading>
@@ -56,6 +68,10 @@ export default function Layout({ children }) {
               <SidebarItem to="/products">
                 <BarcodeIcon />
                 <SidebarLabel>상품</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem to="/product-content-blocks">
+                <LayoutTemplateIcon />
+                <SidebarLabel>상세페이지 템플릿</SidebarLabel>
               </SidebarItem>
               <SidebarItem to="/reviews">
                 <StarIcon />
@@ -73,10 +89,26 @@ export default function Layout({ children }) {
 
             <SidebarSection className="max-lg:hidden">
               <SidebarHeading>홈페이지</SidebarHeading>
-              <SidebarItem to="">
+              <SidebarItem to="/banners">
                 <PanelTopIcon />
                 <SidebarLabel>배너 관리</SidebarLabel>
               </SidebarItem>
+
+              <SidebarItem to="/promotion-categories">
+                <NotebookTextIcon />
+                <SidebarLabel>맞춤형 추천상품 섹션</SidebarLabel>
+              </SidebarItem>
+
+              <SidebarItem to="/promotion-sections">
+                <NotebookTextIcon />
+                <SidebarLabel>프로모션 섹션</SidebarLabel>
+              </SidebarItem>
+
+              <SidebarItem to="/sns-sections">
+                <NotebookTextIcon />
+                <SidebarLabel>인스타그램 섹션</SidebarLabel>
+              </SidebarItem>
+
               <SidebarItem to="">
                 <NotebookTextIcon />
                 <SidebarLabel>프로모션 페이지</SidebarLabel>

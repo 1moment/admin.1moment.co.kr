@@ -1,8 +1,7 @@
 import React from "react";
-import { apiClient } from "@/utils/api-client.ts";
-
-import { useSearchParams, Link } from "react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { generatePagination } from "@/utils/generate-pagination-array.ts";
+import {  CornerDownRightIcon } from "lucide-react";
+import {useSearchParams, Link } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog.tsx";
@@ -16,18 +15,45 @@ import {
   TableRow,
 } from "@/components/ui/table.tsx";
 
+import { useCategories } from "@/hooks/use-categories.tsx";
+import {
+  Pagination,
+  PaginationList,
+  PaginationNext,
+  PaginationPage,
+  PaginationPrevious,
+} from "@/components/ui/pagination.tsx";
+import { Navbar, NavbarItem, NavbarSection } from "@/components/ui/navbar";
+import { LinkButton } from "@/components/ui/button.tsx";
+
 function ProductCategoriesPage() {
-  const [searchParams] = useSearchParams();
-  const { data: categories } = useSuspenseQuery<ProductCategory[]>({
-    queryKey: ["product-categories", { status: searchParams.get("status") }],
-    queryFn: () =>
-      apiClient("/admin/product-categories").then((res) => res.json()),
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentPage = Number(searchParams.get("page") || 1);
+  const status = searchParams.get("status") || "PUBLISHED";
+  const {
+    data: { items: categories, meta },
+  } = useCategories({
+    status,
+    currentPage,
+    limit: status === "PUBLISHED" ? 100 : 10,
   });
 
   const [openImage, setOpenImage] = React.useState(null);
   return (
-    <div>
-      <Table>
+    <div className="py-4 bg-white rounded-xl">
+      <Navbar>
+        <NavbarSection>
+          <NavbarItem to="?status=PUBLISHED" current={status === "PUBLISHED"}>
+            PUBLISHED
+          </NavbarItem>
+          <NavbarItem to="?status=DRAFT" current={status === "DRAFT"}>
+            DRAFT
+          </NavbarItem>
+        </NavbarSection>
+      </Navbar>
+      <hr className="border-zinc-500/10" />
+      <Table className="mt-4 px-4">
         <TableHead>
           <TableRow>
             <TableHeader className="whitespace-nowrap w-1">SLUG</TableHeader>
@@ -45,7 +71,7 @@ function ProductCategoriesPage() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {categories?.map((category) => (
+          {categories.map((category) => (
             <TableRow key={category.id}>
               <TableCell>
                 <Link
@@ -55,7 +81,14 @@ function ProductCategoriesPage() {
                   {category.slug}
                 </Link>
               </TableCell>
-              <TableCell>{category.title}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  {status === "PUBLISHED" && category.parentCategory && (
+                    <CornerDownRightIcon className="w-[16px] h-[16px]" />
+                  )}
+                  {category.title}
+                </div>
+              </TableCell>
               <TableCell>
                 <img
                   className="w-auto min-h-10"
@@ -85,6 +118,27 @@ function ProductCategoriesPage() {
           ))}
         </TableBody>
       </Table>
+      {status !== "PUBLISHED" && (
+        <Pagination className="mt-8">
+          <PaginationPrevious>이전</PaginationPrevious>
+          <PaginationList>
+            {generatePagination(meta.totalPages, meta.page).map((page) => (
+              <PaginationPage
+                key={`page-${page}`}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams);
+                  params.set("page", `${page}`);
+                  setSearchParams(params);
+                }}
+                current={page === currentPage}
+              >
+                {page}
+              </PaginationPage>
+            ))}
+          </PaginationList>
+          <PaginationNext>다음</PaginationNext>
+        </Pagination>
+      )}
       <Dialog open={!!openImage} onClose={() => setOpenImage(null)}>
         <img src={openImage} alt="" />
       </Dialog>
@@ -95,7 +149,10 @@ function ProductCategoriesPage() {
 export default function Page() {
   return (
     <React.Fragment>
-      <Heading className="mb-8">상품 카테고리</Heading>
+      <div className="mb-8 flex items-start justify-between">
+        <Heading>상품 카테고리</Heading>
+        <LinkButton to="/product-categories/create">추가</LinkButton>
+      </div>
       <React.Suspense
         fallback={
           <div className="p-8 text-center">
