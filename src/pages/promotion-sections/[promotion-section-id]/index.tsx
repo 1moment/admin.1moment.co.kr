@@ -23,7 +23,7 @@ import {
   usePromotionSection,
   usePromotionSectionUpdateMutation,
 } from "@/hooks/use-promotion-sections.tsx";
-import ProductsDialog from "@/components/promotion-sections/products-dialog.tsx";
+import ProductsDialog from "@/components/ui/products-dialog.tsx";
 
 function PromotionSection() {
   const navigate = useNavigate();
