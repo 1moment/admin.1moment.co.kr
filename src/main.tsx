@@ -2,9 +2,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Routes from "./routes.tsx";
+import { Amplify } from 'aws-amplify';
+
 
 import * as Sentry from "@sentry/react";
-
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: import.meta.env.VITE_SENTRY_ENVIRONMENT,
@@ -12,6 +13,19 @@ Sentry.init({
   // Set `tracePropagationTargets` to control for which URLs trace propagation should be enabled
   // tracePropagationTargets: [/^\//, /^https:\/\/yourserver\.io\/api/],
 });
+
+Amplify.configure({
+  Auth: {
+    Cognito: {
+      userPoolId: 'ap-northeast-2_mJamQF510',
+      userPoolClientId: 'bm19dmqvaakjmq0u016c74ujm',
+      loginWith: {
+        email: true
+      }
+    }
+  }
+});
+
 
 const queryClient = new QueryClient();
 

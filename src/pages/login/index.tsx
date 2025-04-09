@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { AuthLayout } from "@/components/ui/auth-layout.tsx";
 import { Heading } from "@/components/ui/heading.tsx";
+import { signIn, getCurrentUser } from 'aws-amplify/auth';
+
 
 export default function Index() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -15,32 +17,14 @@ export default function Index() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const username = formData.get("username") as string;
+    const password = formData.get("password") as string;
+
     setError(null);
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/admin/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: formData.get("username"),
-            password: formData.get("password"),
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("로그인에 실패했습니다");
-      }
-
-      const data = await response.json();
-      console.log("fewfe?", data);
-      // 로그인 성공 처리
-      localStorage.setItem("token", data.accessToken); // 토큰이 있는 경우
+      await signIn({ username, password });
       navigate("/"); // 로그인 성공 후 대시보드로 이동
     } catch (err) {
       setError(
@@ -50,6 +34,12 @@ export default function Index() {
       setIsLoading(false);
     }
   };
+
+  React.useEffect(() => {
+    getCurrentUser().then((data) => {
+      navigate('/', { replace: true });
+    })
+  }, []);
 
   return (
     <AuthLayout className="flex min-h-screen items-center justify-center bg-gray-100">
