@@ -296,7 +296,10 @@ export default function CouponPage() {
   return (
     <React.Fragment>
       <Sentry.ErrorBoundary
-        fallback={(errorData) => <p>{errorData.error.message}</p>}
+        fallback={({ error, componentStack }) => {
+          console.error(error, componentStack);
+          return <p>{(error as Error).message}</p>;
+        }}
       >
         <React.Suspense
           fallback={

@@ -1,8 +1,7 @@
 import * as React from "react";
-import { apiClient } from "@/utils/api-client.ts";
+import * as Sentry from "@sentry/react";
 import { generatePagination } from "@/utils/generate-pagination-array.ts";
 import { format } from "date-fns/format";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router";
 
 import { Heading } from "@/components/ui/heading.tsx";
@@ -24,32 +23,35 @@ import {
 } from "@/components/ui/pagination.tsx";
 import { Link } from "@/components/ui/link";
 
+import { useCoupons } from "@/hooks/use-coupons.tsx";
+
 function Coupons() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page") || 1);
   const {
     data: { items, meta },
-  } = useSuspenseQuery<{ items: Coupon[] }>({
-    queryKey: ["coupons", { page: currentPage }],
-    queryFn: () => {
-      return apiClient(`/admin/coupons?${searchParams.toString()}`).then(
-        (res) => res.json(),
-      );
-    },
-  });
+  } = useCoupons({ currentPage });
 
   return (
-    <div className="p-4 border border-gray-100 rounded">
-      <Table>
+    <div className="bg-white rounded-xl">
+      <Table className="px-4">
         <TableHead>
           <TableRow>
-            <TableHeader className="w-1 whitespace-nowrap text-center">식별자</TableHeader>
+            <TableHeader className="w-1 whitespace-nowrap text-center">
+              식별자
+            </TableHeader>
             <TableHeader>쿠폰명</TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">코드</TableHeader>
+            <TableHeader className="w-1 whitespace-nowrap text-center">
+              코드
+            </TableHeader>
             <TableHeader>할인가격</TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">만료일</TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">생성일</TableHeader>
+            <TableHeader className="w-1 whitespace-nowrap text-center">
+              만료일
+            </TableHeader>
+            <TableHeader className="w-1 whitespace-nowrap text-center">
+              생성일
+            </TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -89,7 +91,7 @@ function Coupons() {
         </TableBody>
       </Table>
 
-      <Pagination className="mt-8">
+      <Pagination className="p-4">
         <PaginationPrevious>이전</PaginationPrevious>
         <PaginationList>
           {generatePagination(meta.totalPages, meta.page).map((page) => (
@@ -118,13 +120,20 @@ export default function CouponsPage() {
   return (
     <React.Fragment>
       <Heading className="mb-8">쿠폰</Heading>
-      <React.Suspense
-        fallback={
-          <div className="p-8 text-center">쿠폰 목록을 불러오는 중...</div>
-        }
+      <Sentry.ErrorBoundary
+        fallback={({ error, componentStack }) => {
+          console.error(error, componentStack);
+          return <p>{(error as Error).message}</p>;
+        }}
       >
-        <Coupons />
-      </React.Suspense>
+        <React.Suspense
+          fallback={
+            <div className="p-8 text-center">쿠폰 목록을 불러오는 중...</div>
+          }
+        >
+          <Coupons />
+        </React.Suspense>
+      </Sentry.ErrorBoundary>
     </React.Fragment>
   );
 }

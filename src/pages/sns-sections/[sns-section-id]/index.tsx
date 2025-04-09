@@ -1,12 +1,18 @@
 import * as React from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 import { Heading } from "@/components/ui/heading";
 
-import {useSnsSection, useSnsSectionUpdateMutation} from "@/hooks/use-sns-sections";
+import {
+  useSnsSection,
+  useSnsSectionUpdateMutation,
+} from "@/hooks/use-sns-sections";
 import SnsSectionForm from "@/components/sns-sections/form.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { ArrowLeftIcon } from "lucide-react";
 
 function SnsSection() {
+  const navigate = useNavigate();
   const params = useParams<{ "sns-section-id": string }>();
 
   const snsSectionId = Number(params["sns-section-id"]);
@@ -53,13 +59,13 @@ function SnsSection() {
 
   return (
     <React.Fragment>
-      <div className="flex justify-between">
-        <Heading>맞춤형 추천상품 섹션</Heading>
+      <div className="flex items-center">
+        <Button plain onClick={() => navigate(-1)}>
+          <ArrowLeftIcon width={20} height={20} />
+        </Button>
+        {/*<Heading>{snsSection.title}</Heading>*/}
       </div>
-      <SnsSectionForm
-          snsSection={snsSection}
-          onSubmit={onSubmit}
-      />
+      <SnsSectionForm snsSection={snsSection} onSubmit={onSubmit} />
     </React.Fragment>
   );
 }

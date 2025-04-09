@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as Sentry from "@sentry/react";
 import { format } from "date-fns/format";
 import { subMonths } from "date-fns/subMonths";
 import { generatePagination } from "@/utils/generate-pagination-array.ts";
@@ -223,7 +224,9 @@ function Orders() {
               <TableCell>
                 {order.user ? (
                   <React.Fragment>
-                    <Link className="underline" to={`/users/${order.user.id}`}>{order.user.id}</Link>
+                    <Link className="underline" to={`/users/${order.user.id}`}>
+                      {order.user.id}
+                    </Link>
                     <p>{order.user.email}</p>
                   </React.Fragment>
                 ) : (
@@ -289,13 +292,20 @@ export default function Page() {
   return (
     <React.Fragment>
       <Heading>주문목록</Heading>
-      <React.Suspense
-        fallback={
-          <div className="p-8 text-center">주문 목록을 불러오는 중...</div>
-        }
+      <Sentry.ErrorBoundary
+        fallback={({ error, componentStack }) => {
+          console.error(error, componentStack);
+          return <p>{(error as Error).message}</p>;
+        }}
       >
-        <Orders />
-      </React.Suspense>
+        <React.Suspense
+          fallback={
+            <div className="p-8 text-center">주문 목록을 불러오는 중...</div>
+          }
+        >
+          <Orders />
+        </React.Suspense>
+      </Sentry.ErrorBoundary>
     </React.Fragment>
   );
 }

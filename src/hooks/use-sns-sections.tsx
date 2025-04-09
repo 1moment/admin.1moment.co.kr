@@ -1,7 +1,10 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { apiClient } from "@/utils/api-client.ts";
 
-type MutationData = Pick<SnsSection, "displayedHandlerName" | "imageUrl"> &
+export type SnsSectionMutationData = Pick<
+  SnsSection,
+  "displayedHandlerName" | "imageUrl"
+> &
   Partial<Pick<SnsSection, "sequence">> & {
     productId: number;
   };
@@ -10,13 +13,13 @@ export function useSnsSections({
   currentPage = 1,
   limit = 10,
   status,
-}: { currentPage?: number; limit?: number; status: "PUBLISHED" | "DRAFT" }) {
+}: { currentPage?: number; limit?: number; status: string }) {
   return useSuspenseQuery<{ items: SnsSection[] }>({
     queryKey: ["sns-sections", { status }],
     async queryFn() {
       const params = new URLSearchParams();
       params.set("page", `${currentPage}`);
-      params.set("limit", `${limit}`);
+      params.set("limit", status.published ? "100" : `${limit}`);
       if (status) params.set("status", status);
 
       const response = await apiClient(
@@ -40,7 +43,7 @@ export function useSnsSection(snsSectionId: number) {
 }
 
 export function useSnsSectionCreateMutation() {
-  return useMutation<SnsSection, Error, MutationData>({
+  return useMutation<SnsSection, Error, SnsSectionMutationData>({
     async mutationFn(data) {
       const response = await apiClient("/admin/sns-sections", {
         method: "POST",
@@ -59,14 +62,7 @@ export function useSnsSectionCreateMutation() {
 }
 
 export function useSnsSectionUpdateMutation(snsSectionId: number) {
-  return useMutation<
-    SnsSection,
-    Error,
-    Pick<
-      Partial<MutationData>,
-      "displayedHandlerName" | "imageUrl" | "productId" | "sequence"
-    >
-  >({
+  return useMutation<SnsSection, Error, SnsSectionMutationData>({
     async mutationFn(data) {
       const result = await apiClient(`/admin/sns-sections/${snsSectionId}`, {
         method: "PATCH",
