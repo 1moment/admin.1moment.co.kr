@@ -4,12 +4,6 @@ import * as Sentry from "@sentry/react";
 
 import { Heading, Subheading } from "@/components/ui/heading.tsx";
 
-import Products from "@/components/product-categories/products";
-import {
-  useCategory,
-  useCategoryUpdateMutation,
-} from "@/hooks/use-categories.tsx";
-import ProductCategoryForm from "@/components/product-categories/form.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeftIcon } from "lucide-react";
 import { useBanner, useBannerUpdateMutation } from "@/hooks/use-banners.tsx";

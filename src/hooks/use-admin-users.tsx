@@ -1,7 +1,10 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { apiClient } from "@/utils/api-client.ts";
 
-export type AdminUserMutationData = Pick<AdminUser, "name" | "role" | "username" | "isActive">;
+export type AdminUserMutationData = Pick<
+  AdminUser,
+  "name" | "role" | "username" | "isActive"
+>;
 
 export function useAdminUsers() {
   return useSuspenseQuery<AdminUser[]>({
@@ -9,6 +12,9 @@ export function useAdminUsers() {
     async queryFn() {
       const response = await apiClient("/admin/admin-users");
       const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message);
+      }
       return result;
     },
   });
@@ -20,6 +26,23 @@ export function useAdminUser(adminUserId: number) {
     async queryFn() {
       const response = await apiClient(`/admin/admin-users/${adminUserId}`);
       const result = await response.json();
+      return result;
+    },
+  });
+}
+
+export function useAdminUsersSyncMutation() {
+  return useMutation<AdminUser, Error, void>({
+    async mutationFn() {
+      const response = await apiClient("/admin/admin-users/sync-with-cognito", {
+        method: "POST",
+      });
+
+      const result = await response.json();
+      if (result.error) {
+        throw new Error(result.message);
+      }
+
       return result;
     },
   });

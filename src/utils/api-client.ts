@@ -1,16 +1,19 @@
+import { fetchAuthSession } from 'aws-amplify/auth';
+
 interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
 }
 
-export const apiClient = (
+export const apiClient = async (
   endpoint: string,
   options?: FetchOptions,
 ): Promise => {
-  const token = localStorage.getItem("token");
+  const session = await fetchAuthSession();
+  const accessToken = session.tokens?.accessToken.toString();
 
   const defaultHeaders: Record<string, string> = {
     // "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }), // token이 있으면 추가
+    ...(accessToken && { Authorization: `Bearer ${accessToken}` }), // token이 있으면 추가
   };
 
   const config: RequestInit = {

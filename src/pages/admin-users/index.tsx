@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as Sentry from "@sentry/react";
 
 import { Button } from "@/components/ui/button.tsx";
 import { Heading } from "@/components/ui/heading.tsx";
@@ -11,71 +12,88 @@ import {
   TableRow,
 } from "@/components/ui/table.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
-import CreateDialog from "@/components/admin-users/create-dialog.tsx";
 import { Link } from "@/components/ui/link.tsx";
 
-import { useAdminUsers } from "@/hooks/use-admin-users.tsx";
+import {
+  useAdminUsers,
+  useAdminUsersSyncMutation,
+} from "@/hooks/use-admin-users.tsx";
 
-export default function AdminUserPage() {
+function AdminUserTable() {
+  const { data, refetch } = useAdminUsers();
+  const { mutate, isPending } = useAdminUsersSyncMutation();
+
   return (
     <React.Fragment>
-      <Heading className="mb-8">관리자</Heading>
-      <React.Suspense
-        fallback={
-          <div className="p-8 text-center">사용자 목록을 불러오는 중...</div>
-        }
-      >
-        <AdminUserTable />
-      </React.Suspense>
+      <div className="mb-8 flex items-start justify-between">
+        <Heading>관리자</Heading>
+        <Button
+          isLoading={isPending}
+          onClick={() => {
+            mutate({
+              onSuccess() {
+                refetch();
+                alert("동기화 성공");
+              },
+            });
+          }}
+        >
+          동기화
+        </Button>
+      </div>
+      <div className="mt-8 p-4 bg-white border border-gray-100 rounded-xl">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeader>아이디</TableHeader>
+              <TableHeader>이름</TableHeader>
+              <TableHeader>권한</TableHeader>
+              <TableHeader className="whitespace-nowrap w-1">
+                활성화여부
+              </TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data?.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>
+                  <Link className="underline" to={`/admin-users/${user.id}`}>
+                    {user.username}
+                  </Link>
+                </TableCell>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.role}</TableCell>
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Switch checked={user.isActive} />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </React.Fragment>
   );
 }
 
-function AdminUserTable() {
-  const { data, refetch } = useAdminUsers();
-
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
-
+export default function AdminUserPage() {
   return (
-    <div className="mt-8 p-4 bg-white border border-gray-100 rounded-xl">
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableHeader>아이디</TableHeader>
-            <TableHeader>이름</TableHeader>
-            <TableHeader>권한</TableHeader>
-            <TableHeader className="whitespace-nowrap w-1">
-              활성화여부
-            </TableHeader>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data?.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>
-                <Link className="underline" to={`/admin-users/${user.id}`}>
-                  {user.username}
-                </Link>
-              </TableCell>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.role}</TableCell>
-              <TableCell>
-                <div className="flex justify-center">
-                  <Switch checked={user.isActive} />
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <div className="mt-6 flex justify-end">
-        <Button onClick={() => setIsCreateDialogOpen(true)}>관리자 추가</Button>
-      </div>
-      <CreateDialog
-        refetch={refetch}
-        isOpen={isCreateDialogOpen}
-        setIsOpen={setIsCreateDialogOpen}
-      />
-    </div>
+    <React.Fragment>
+      <Sentry.ErrorBoundary
+        fallback={({ error, componentStack }) => {
+          console.error(error, componentStack);
+          return <p>{(error as Error).message}</p>;
+        }}
+      >
+        <React.Suspense
+          fallback={
+            <div className="p-8 text-center">사용자 목록을 불러오는 중...</div>
+          }
+        >
+          <AdminUserTable />
+        </React.Suspense>
+      </Sentry.ErrorBoundary>
+    </React.Fragment>
   );
 }

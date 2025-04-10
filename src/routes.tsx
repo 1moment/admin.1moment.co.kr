@@ -17,6 +17,7 @@ const CouponsPage = React.lazy(() => import("./pages/coupons"));
 const CouponPage = React.lazy(() => import("./pages/coupons/[coupon-id]"));
 
 const LoginPage = React.lazy(() => import("./pages/login"));
+const LogoutPage = React.lazy(() => import("./pages/logout"));
 
 const OrdersPage = React.lazy(() => import("./pages/orders"));
 const OrderPage = React.lazy(() => import("./pages/orders/[order-id]"));
@@ -104,6 +105,7 @@ export default function AppRoutes() {
           </Route>
 
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/logout" element={<LogoutPage />} />
 
           <Route path="orders">
             <Route path="" element={<OrdersPage />} />
