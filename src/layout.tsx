@@ -39,7 +39,7 @@ import {
   SmilePlusIcon,
   TicketsIcon,
   LayoutTemplateIcon,
-  HomeIcon,
+  HomeIcon, LayersIcon,
 } from "lucide-react";
 
 import UserContext from "./contexts/user-context.ts";
@@ -95,21 +95,21 @@ export default function Layout({ children }) {
               </SidebarItem>
 
               <SidebarItem to="/promotion-categories">
-                <NotebookTextIcon />
+                <LayersIcon />
                 <SidebarLabel>맞춤형 추천상품 섹션</SidebarLabel>
               </SidebarItem>
 
               <SidebarItem to="/promotion-sections">
-                <NotebookTextIcon />
+                <LayersIcon />
                 <SidebarLabel>프로모션 섹션</SidebarLabel>
               </SidebarItem>
 
               <SidebarItem to="/sns-sections">
-                <NotebookTextIcon />
+                <LayersIcon />
                 <SidebarLabel>인스타그램 섹션</SidebarLabel>
               </SidebarItem>
 
-              <SidebarItem to="">
+              <SidebarItem to="/promotion-pages">
                 <NotebookTextIcon />
                 <SidebarLabel>프로모션 페이지</SidebarLabel>
               </SidebarItem>

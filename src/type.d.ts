@@ -157,6 +157,18 @@ type PromotionCategory = {
   updatedAt: string;
 };
 
+type PromotionPage = {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  html: string;
+  status: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 type PromotionSection = {
   id: number;
   title: string;
@@ -193,6 +205,13 @@ type SnsSection = {
   createdAt: string;
   updatedAt: string;
 };
+
+type PaginationMeta = {
+  limit: number;
+  page: number;
+  total: number;
+  totalPages: number;
+}
 
 enum DeliveryStatus {
   DELIVERING,
