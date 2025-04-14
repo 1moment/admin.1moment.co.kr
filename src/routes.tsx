@@ -44,6 +44,17 @@ const ProductContentBlockPage = React.lazy(
   () => import("./pages/product-content-blocks/[product-content-block-id]"),
 );
 
+const ProductAdditionalGroupsPage = React.lazy(
+  () => import("./pages/product-additional-groups"),
+);
+const ProductAdditionalGroupPage = React.lazy(
+  () =>
+    import("./pages/product-additional-groups/[product-additional-group-id]"),
+);
+const ProductAdditionalGroupCreatePage = React.lazy(
+  () => import("./pages/product-additional-groups/create"),
+);
+
 const ProductsPage = React.lazy(() => import("./pages/products"));
 const ProductPage = React.lazy(() => import("./pages/products/[product-id]"));
 const ProductCreatePage = React.lazy(() => import("./pages/products/create"));
@@ -139,6 +150,18 @@ export default function AppRoutes() {
             <Route
               path=":product-content-block-id"
               element={<ProductContentBlockPage />}
+            />
+          </Route>
+
+          <Route path="product-additional-groups">
+            <Route path="" element={<ProductAdditionalGroupsPage />} />
+            <Route
+              path="create"
+              element={<ProductAdditionalGroupCreatePage />}
+            />
+            <Route
+              path=":product-additional-group-id"
+              element={<ProductAdditionalGroupPage />}
             />
           </Route>
 

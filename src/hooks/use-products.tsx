@@ -54,7 +54,7 @@ export function useProduct(productId: number) {
 }
 
 export function useProductCreateMutation() {
-  return useMutation<Product, Error, ProductMutationData>({
+  return useMutation<Product, Error | { statusCode: number; message: string; fieldErrors?: Record<string, string>}, ProductMutationData>({
     mutationFn: async (data) => {
       const response = await apiClient("/admin/products", {
         method: "POST",
@@ -63,8 +63,8 @@ export function useProductCreateMutation() {
       });
 
       const result = await response.json();
-      if (result.error) {
-        throw new Error(result.message);
+      if (!response.ok) {
+        throw result;
       }
 
       return result;
@@ -82,8 +82,8 @@ export function useProductUpdateMutation(productId: number) {
       });
 
       const result = await response.json();
-      if (result.error) {
-        throw new Error(result.message);
+      if (!response.ok) {
+        throw result;
       }
       return result;
     },

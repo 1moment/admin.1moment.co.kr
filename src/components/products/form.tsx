@@ -5,7 +5,12 @@ import * as React from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Subheading } from "@/components/ui/heading.tsx";
 import { Text } from "@/components/ui/text.tsx";
-import { Field, FieldGroup, Label } from "@/components/ui/fieldset.tsx";
+import {
+  ErrorMessage,
+  Field,
+  FieldGroup,
+  Label,
+} from "@/components/ui/fieldset.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Select } from "@/components/ui/select.tsx";
 import { Editor } from "@/components/ui/editor.tsx";
@@ -31,31 +36,33 @@ import { PencilIcon, UnplugIcon } from "lucide-react";
 import { Link } from "@/components/ui/link.tsx";
 
 import { useCategories } from "@/hooks/use-categories.tsx";
+import { Switch } from "@/components/ui/switch.tsx";
 
 export default function ProductForm({
   handleSubmit,
   product,
+  fieldErrors,
   isLoading,
 }: {
   handleSubmit: (data: ProductMutationData) => void;
   product?: Product;
+  fieldErrors?: Record<string, string>;
   isLoading?: boolean;
 }) {
   const {
     data: { items: productContentBlocks },
   } = useProductContentBlocks({
-    isUsed: true
+    isUsed: true,
   });
   const { mutate: fileUpload } = useFileUploadMutation();
 
-  const [imageUrl, setImageUrl] = React.useState<string | undefined>(
-    product?.imageUrl,
-  );
-  const [content, setContent] = React.useState<string | undefined>(
-    product?.content,
+  const [imageUrl, setImageUrl] = React.useState<string>(
+    product?.imageUrl || "",
   );
 
-  // productItem도 식별할 수 있게 uid라는 프로퍼티를 생성함
+  const [groups, setGroups] = React.useState(
+    product?.addedProductGroups.map((pg) => pg.group) || [],
+  );
   const [productItems, setProductItems] = React.useState(
     product?.items?.map((item) => ({
       ...item,
@@ -84,15 +91,16 @@ export default function ProductForm({
             title: formData.get("title") as string,
             slug: formData.get("slug") as string,
             description: formData.get("description") as string,
-            imageUrl: imageUrl as string,
-            content: content as string,
+            imageUrl: formData.get("imageUrl") as string,
+            content: formData.get("content") as string,
             topContentBlockId:
               Number(formData.get("topContentBlockId")) || null,
             bottomContentBlockId:
               Number(formData.get("bottomContentBlockId")) || null,
             status: formData.get("status") as string,
-            items: productItems.map(({ uid, ...rest }) => rest),
-            categoryIds: categories.map((category) => category.id),
+            items: JSON.parse(formData.get("items") as string),
+            isAdditional: formData.get("isAdditional") === "on",
+            categoryIds: JSON.parse(formData.get("categoryIds") as string),
           });
         }}
       >
@@ -108,14 +116,28 @@ export default function ProductForm({
                 <Label>
                   상품명&nbsp;<span className="text-red-400">*</span>
                 </Label>
-                <Input name="title" defaultValue={product?.title} />
+                <Input
+                  name="title"
+                  defaultValue={product?.title}
+                  invalid={!!fieldErrors?.title}
+                />
+                {fieldErrors?.title && (
+                  <ErrorMessage>{fieldErrors.title}</ErrorMessage>
+                )}
               </Field>
 
               <Field>
                 <Label>
                   SLUG&nbsp;<span className="text-red-400">*</span>
                 </Label>
-                <Input name="slug" defaultValue={product?.slug} />
+                <Input
+                  name="slug"
+                  defaultValue={product?.slug}
+                  invalid={!!fieldErrors?.slug}
+                />
+                {fieldErrors?.slug && (
+                  <ErrorMessage>{fieldErrors.slug}</ErrorMessage>
+                )}
               </Field>
 
               <Field>
@@ -132,6 +154,7 @@ export default function ProductForm({
                   className="mt-3"
                   type="file"
                   accept="image/*"
+                  invalid={!!fieldErrors?.imageUrl}
                   onChange={({ target, currentTarget: { files } }) => {
                     if (files?.[0]) {
                       fileUpload(files[0], {
@@ -145,6 +168,10 @@ export default function ProductForm({
                     }
                   }}
                 />
+                {fieldErrors?.imageUrl && (
+                  <ErrorMessage>{fieldErrors.imageUrl}</ErrorMessage>
+                )}
+                <input type="hidden" name="imageUrl" value={imageUrl} />
               </Field>
             </FieldGroup>
           </div>
@@ -161,7 +188,7 @@ export default function ProductForm({
               <Label>상단내용</Label>
               <Select
                 name="topContentBlockId"
-                defaultValue={product?.topContentBlockId}
+                defaultValue={product?.topContentBlock?.id}
               >
                 <option value="">없음</option>
                 {productContentBlocks.map((productContentBlock) => (
@@ -176,19 +203,23 @@ export default function ProductForm({
             </Field>
 
             <Field>
-              <Label>내용</Label>
+              <Label>
+                내용&nbsp;<span className="text-red-400">*</span>
+              </Label>
               <Editor
                 name="content"
                 content={product?.content}
-                onUpdate={({ editor }) => setContent(editor.getHTML())}
               />
+              {fieldErrors?.content && (
+                <ErrorMessage>{fieldErrors.content}</ErrorMessage>
+              )}
             </Field>
 
             <Field>
               <Label>하단내용</Label>
               <Select
                 name="bottomContentBlockId"
-                defaultValue={product?.bottomContentBlockId}
+                defaultValue={product?.bottomContentBlock?.id}
               >
                 <option value="">없음</option>
                 {productContentBlocks.map((productContentBlock) => (
@@ -201,6 +232,73 @@ export default function ProductForm({
                 ))}
               </Select>
             </Field>
+          </FieldGroup>
+        </div>
+
+        <div className="grid grid-cols-1 gap-x-8 gap-y-8 py-10 md:grid-cols-3">
+          <div className="px-4 sm:px-0">
+            <Subheading>추가전용상품 여부</Subheading>
+            <Text>해당 상품을 추가전용 상품으로 구분하는지 확인</Text>
+          </div>
+
+          <FieldGroup className="px-4 py-6 sm:p-8 bg-white ring-1 shadow-xs ring-gray-900/5 sm:rounded-xl md:col-span-2">
+            <Field>
+              <Switch
+                name="isAdditional"
+                defaultChecked={product?.isAdditional || false}
+              />
+            </Field>
+
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableHeader>그룹명</TableHeader>
+                  <TableHeader className="w-1 whitespace-nowrap">
+                    &nbsp;
+                  </TableHeader>
+                </TableRow>
+              </TableHead>
+              {Array.isArray(groups) && groups.length > 0 ? (
+                <TableBody>
+                  {groups.map((group) => (
+                    <TableRow key={group.id}>
+                      <TableCell>
+                        <Link
+                          className="flex underline"
+                          to={`/product-additional-groups/${group.id}`}
+                          target="_blank"
+                        >
+                          {group.title}
+                        </Link>
+                      </TableCell>
+                      {/*<TableCell>*/}
+                      {/*  <Button*/}
+                      {/*      color="red"*/}
+                      {/*      onClick={() => {*/}
+                      {/*        setGroups((prev) =>*/}
+                      {/*            prev.filter((p) => p.id !== product.id),*/}
+                      {/*        );*/}
+                      {/*      }}*/}
+                      {/*  >*/}
+                      {/*    <UnplugIcon data-slot="icon" />*/}
+                      {/*    연결끊기*/}
+                      {/*  </Button>*/}
+                      {/*</TableCell>*/}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              ) : (
+                <TableBody>
+                  <TableRow>
+                    <TableCell colSpan={4}>
+                      <div className="h-20 flex items-center justify-center">
+                        연결된 상품이 없습니다.
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+            </Table>
           </FieldGroup>
         </div>
 
@@ -223,10 +321,30 @@ export default function ProductForm({
 
         <div className="grid grid-cols-1 gap-x-8 gap-y-8 py-10 md:grid-cols-3">
           <div className="px-4 sm:px-0">
+            <Subheading>광고</Subheading>
+          </div>
+
+          <FieldGroup className="px-4 py-6 sm:p-8 bg-white ring-1 shadow-xs ring-gray-900/5 sm:rounded-xl md:col-span-2">
+            <Field>
+              <Label>광고제목</Label>
+              <Input name="adTitle" defaultValue={product?.adTitle} />
+            </Field>
+          </FieldGroup>
+        </div>
+
+        <div className="grid grid-cols-1 gap-x-8 gap-y-8 py-10 md:grid-cols-3">
+          <div className="px-4 sm:px-0">
             <Subheading>옵션</Subheading>
             <Text>상품에서 구매할 수 있는 옵션</Text>
           </div>
           <div className="px-4 py-6 sm:p-8 bg-white ring-1 shadow-xs ring-gray-900/5 sm:rounded-xl md:col-span-2 ">
+            <input
+              type="hidden"
+              name="items"
+              value={JSON.stringify(
+                productItems.map(({ uid, ...rest }) => rest),
+              )}
+            />
             <Table>
               <TableHead>
                 <TableRow>
@@ -290,9 +408,15 @@ export default function ProductForm({
         <div className="grid grid-cols-1 gap-x-8 gap-y-8 py-10 md:grid-cols-3">
           <div className="px-4 sm:px-0">
             <Subheading>카테고리</Subheading>
-            <Text>상품에서 구매할 수 있는 옵션</Text>
+            <Text>상품에 연결된 카테고리</Text>
           </div>
           <div className="px-4 py-6 sm:p-8 bg-white ring-1 shadow-xs ring-gray-900/5 sm:rounded-xl md:col-span-2 ">
+            <input
+              type="hidden"
+              name="categoryIds"
+              value={JSON.stringify(categories.map((category) => category.id))}
+            />
+
             <Table>
               <TableHead>
                 <TableRow>

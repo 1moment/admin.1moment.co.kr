@@ -39,7 +39,7 @@ import {
   SmilePlusIcon,
   TicketsIcon,
   LayoutTemplateIcon,
-  HomeIcon, LayersIcon,
+  HomeIcon, LayersIcon, PackagePlusIcon,
 } from "lucide-react";
 
 import UserContext from "./contexts/user-context.ts";
@@ -72,6 +72,10 @@ export default function Layout({ children }) {
               <SidebarItem to="/product-content-blocks">
                 <LayoutTemplateIcon />
                 <SidebarLabel>상세페이지 템플릿</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem to="/product-additional-groups">
+                <PackagePlusIcon />
+                <SidebarLabel>추가 상품 그룹</SidebarLabel>
               </SidebarItem>
               <SidebarItem to="/reviews">
                 <StarIcon />

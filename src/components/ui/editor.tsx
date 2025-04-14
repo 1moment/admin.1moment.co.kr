@@ -78,16 +78,20 @@ export function Editor({
   onUpdate?: EditorOptions["onUpdate"];
 }) {
   const imageInputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
   const editor = useEditor({
     extensions,
-    content: content,
+    content,
     editorProps: {
       attributes: {
-        name,
         class: "px-4 py-3",
       },
     },
-    onUpdate,
+    onUpdate(context) {
+      inputRef.current.value = context.editor.getHTML();
+      onUpdate?.(context);
+    },
   });
 
   if (!editor) return null;
@@ -269,6 +273,7 @@ export function Editor({
         className="max-h-[500px] overflow-y-auto"
         editor={editor}
       />
+      <input type="hidden" name={name} defaultValue={content || ''} />
     </div>
   );
 }

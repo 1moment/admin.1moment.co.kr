@@ -1,7 +1,7 @@
 import React from "react";
 import * as Sentry from "@sentry/react";
 import { generatePagination } from "@/utils/generate-pagination-array.ts";
-import { useSearchParams, Link } from "react-router";
+import {useSearchParams, Link, useNavigate} from "react-router";
 
 import * as Headless from "@headlessui/react";
 import { Heading } from "@/components/ui/heading.tsx";
@@ -32,6 +32,7 @@ import { Navbar, NavbarItem, NavbarSection } from "@/components/ui/navbar.tsx";
 import { createSearchParamsFromExisting } from "@/utils/query-prams-helper.ts";
 
 function Products() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page") || 1);
@@ -119,28 +120,30 @@ function Products() {
         <Table className="mt-4 px-4">
           <TableHead>
             <TableRow>
-              <TableHeader className="text-center whitespace-nowrap w-1">
-                ID
-              </TableHeader>
               <TableHeader className="text-center">이미지</TableHeader>
+              <TableHeader>상품명</TableHeader>
               <TableHeader>상품 정보</TableHeader>
               <TableHeader>옵션</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
             {items?.map((product) => (
-              <TableRow key={product.id}>
-                <TableCell className="text-center">
-                  <Link className="underline" to={`/products/${product.id}`}>
-                    {product.id}
-                  </Link>
-                </TableCell>
+              <TableRow
+                  key={product.id}
+                  className="cursor-pointer"
+                  tabIndex={0}
+                  onClick={() => {
+                    navigate(`/products/${product.id}`);
+                  }}
+              >
                 <TableCell>
                   <img className="w-20 h-20" src={product.imageUrl} alt="" />
                 </TableCell>
                 <TableCell>
+                  {product.title}
+                </TableCell>
+                <TableCell>
                   <Text>{product.slug}</Text>
-                  <Strong>{product.title}</Strong>
                   <Text>{product.description}</Text>
                 </TableCell>
                 <TableCell>
