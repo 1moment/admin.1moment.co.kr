@@ -65,7 +65,7 @@ export function useSnsSectionUpdateMutation(snsSectionId: number) {
   return useMutation<SnsSection, Error, SnsSectionMutationData>({
     async mutationFn(data) {
       const result = await apiClient(`/admin/sns-sections/${snsSectionId}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });

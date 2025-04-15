@@ -20,34 +20,11 @@ function SnsSection() {
   const { mutate: updateData } = useSnsSectionUpdateMutation(snsSectionId);
 
   const onSubmit = React.useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      const data: Parameters<typeof updateData>[0] = {};
-      const formData = new FormData(event.currentTarget);
-      if (
-        snsSection.displayedHandlerName !== formData.get("displayedHandlerName")
-      ) {
-        data.displayedHandlerName = formData.get("displayedHandlerName");
-      }
-
-      if (snsSection.imageUrl !== formData.get("imageUrl")) {
-        data.imageUrl = formData.get("imageUrl");
-      }
-
-      console.log("왓?", formData.get("categoryId"));
-      if (snsSection.product.id !== Number(formData.get("productId"))) {
-        data.productId = Number(formData.get("productId"));
-      }
-
-      if (snsSection.sequence !== Number(formData.get("sequence"))) {
-        data.sequence = Number(formData.get("sequence"));
-      }
-
+    (data) => {
       updateData(data, {
-        onSuccess(data) {
-          console.log(data);
+        onSuccess(result) {
           refetch();
-          alert("성공");
+          alert("인스타그램 섹션을 수정하였습니다");
         },
         onError() {
           alert("오류");
