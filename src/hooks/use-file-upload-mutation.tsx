@@ -19,6 +19,9 @@ export default function useFileUploadMutation() {
         body: formData,
       });
 
+      if (response.status === 413) {
+        throw new Error("용량은 50MB로 제한되어있습니다");
+      }
       if (!response.ok) {
         throw new Error("File upload failed");
       }
