@@ -30,24 +30,27 @@ export default function SnsSectionForm({
     snsSection?.imageUrl,
   );
 
+  const submitHandler = React.useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      const formData = new FormData(event.currentTarget);
+
+      onSubmit({
+        displayedHandlerName: formData.get("displayedHandlerName") as string,
+        imageUrl: formData.get("imageUrl") as string,
+        sequence: Number(formData.get("sequence")),
+        productId: Number(formData.get("productId")),
+      });
+    },
+    [onSubmit],
+  );
+
   return (
     <React.Fragment>
       <form
         id="promotion-sections-form"
         className="divide-y divide-gray-900/10"
-        onSubmit={(event) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget);
-
-          onSubmit({
-            displayedHandlerName: formData.get(
-              "displayedHandlerName",
-            ) as string,
-            imageUrl,
-            sequence: Number(formData.get("sequence")),
-            productId: Number(formData.get("productId")),
-          });
-        }}
+        onSubmit={submitHandler}
       >
         <div className="grid grid-cols-1 gap-x-8 gap-y-8 py-10 md:grid-cols-3">
           <div className="px-4 sm:px-0">
