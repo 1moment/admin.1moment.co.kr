@@ -1,4 +1,5 @@
 import * as React from "react";
+import { apiClient } from "@/utils/api-client.ts";
 import {
   BoldIcon,
   ImageIcon,
@@ -76,16 +77,21 @@ export function Editor({
   content?: string;
   onUpdate?: EditorOptions["onUpdate"];
 }) {
+  const imageInputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
   const editor = useEditor({
     extensions,
-    content: content,
+    content,
     editorProps: {
       attributes: {
-        name,
         class: "px-4 py-3",
       },
     },
-    onUpdate,
+    onUpdate(context) {
+      inputRef.current.value = context.editor.getHTML();
+      onUpdate?.(context);
+    },
   });
 
   if (!editor) return null;
@@ -206,16 +212,49 @@ export function Editor({
 
         <Button plain>
           <ImageIcon
-            onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+            onClick={() => {
+              imageInputRef.current.click();
+            }}
           />
         </Button>
         <input
-          id="editor-file-upload"
+          ref={imageInputRef}
           type="file"
+          accept="image/*"
           className="hidden"
-          onChange={(e) => {}}
-        />
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
 
+            try {
+              // 파일 업로드 API 호출
+              const formData = new FormData();
+              formData.append("file", file);
+
+              const response = await apiClient("/admin/file-upload", {
+                method: "POST",
+                body: formData,
+              });
+
+              if (!response.ok) {
+                throw new Error("이미지 업로드에 실패했습니다");
+              }
+
+              const data = await response.json();
+              // API 응답에서 이미지 URL을 가져옵니다
+              const imageUrl = data.url;
+
+              // 에디터에 이미지 삽입
+              editor?.chain().focus().setImage({ src: imageUrl }).run();
+            } catch (error) {
+              console.error("이미지 업로드 오류:", error);
+              alert("이미지 업로드 중 오류가 발생했습니다.");
+            } finally {
+              // 파일 입력란 초기화
+              e.target.value = "";
+            }
+          }}
+        />
         <hr className="w-[1px] h-6 border-none bg-gray-300" />
 
         <Button plain disabled={!editor.can().undo()}>
@@ -234,6 +273,7 @@ export function Editor({
         className="max-h-[500px] overflow-y-auto"
         editor={editor}
       />
+      <input type="hidden" name={name} defaultValue={content || ''} />
     </div>
   );
 }

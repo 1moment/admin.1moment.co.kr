@@ -44,6 +44,17 @@ const ProductContentBlockPage = React.lazy(
   () => import("./pages/product-content-blocks/[product-content-block-id]"),
 );
 
+const ProductAdditionalGroupsPage = React.lazy(
+  () => import("./pages/product-additional-groups"),
+);
+const ProductAdditionalGroupPage = React.lazy(
+  () =>
+    import("./pages/product-additional-groups/[product-additional-group-id]"),
+);
+const ProductAdditionalGroupCreatePage = React.lazy(
+  () => import("./pages/product-additional-groups/create"),
+);
+
 const ProductsPage = React.lazy(() => import("./pages/products"));
 const ProductPage = React.lazy(() => import("./pages/products/[product-id]"));
 const ProductCreatePage = React.lazy(() => import("./pages/products/create"));
@@ -55,13 +66,23 @@ const PromotionCategoryPage = React.lazy(
   () => import("./pages/promotion-categories/[promotion-category-id]"),
 );
 const PromotionCategoryCreatePage = React.lazy(
-    () => import("./pages/promotion-categories/create"),
+  () => import("./pages/promotion-categories/create"),
+);
+
+const PromotionPagesPage = React.lazy(() => import("./pages/promotion-pages"));
+const PromotionPagePage = React.lazy(
+  () => import("./pages/promotion-pages/[promotion-page-id]"),
+);
+const PromotionPageCreatePage = React.lazy(
+  () => import("./pages/promotion-pages/create"),
 );
 
 const PromotionSectionsPage = React.lazy(
   () => import("./pages/promotion-sections"),
 );
-const PromotionSectionCreatePage = React.lazy(() => import("./pages/promotion-sections/create"));
+const PromotionSectionCreatePage = React.lazy(
+  () => import("./pages/promotion-sections/create"),
+);
 const PromotionSectionPage = React.lazy(
   () => import("./pages/promotion-sections/[promotion-section-id]"),
 );
@@ -132,6 +153,18 @@ export default function AppRoutes() {
             />
           </Route>
 
+          <Route path="product-additional-groups">
+            <Route path="" element={<ProductAdditionalGroupsPage />} />
+            <Route
+              path="create"
+              element={<ProductAdditionalGroupCreatePage />}
+            />
+            <Route
+              path=":product-additional-group-id"
+              element={<ProductAdditionalGroupPage />}
+            />
+          </Route>
+
           <Route path="products">
             <Route path="" element={<ProductsPage />} />
             <Route path="create" element={<ProductCreatePage />} />
@@ -145,6 +178,12 @@ export default function AppRoutes() {
               path=":promotion-category-id"
               element={<PromotionCategoryPage />}
             />
+          </Route>
+
+          <Route path="promotion-pages">
+            <Route path="" element={<PromotionPagesPage />} />
+            <Route path="create" element={<PromotionPageCreatePage />} />
+            <Route path=":promotion-page-id" element={<PromotionPagePage />} />
           </Route>
 
           <Route path="promotion-sections">

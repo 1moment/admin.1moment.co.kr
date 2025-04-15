@@ -3,16 +3,17 @@ import * as Sentry from "@sentry/react";
 import { useNavigate } from "react-router";
 import { ArrowLeftIcon } from "lucide-react";
 
-import { Heading } from "@/components/ui/heading.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import ProductForm from "@/components/products/form.tsx";
+import { Heading } from "@/components/ui/heading";
+import { Button } from "@/components/ui/button";
+import ProductAdditionalGroupForm from "@/components/product-additional-groups/form";
 
-import { useProductCreateMutation } from "@/hooks/use-products.tsx";
+import { useProductAdditionalGroupCreateMutation } from "@/hooks/use-product-addtional-groups";
 
 function ProductCreate() {
   const navigate = useNavigate();
 
-  const { mutate, isPending, error } = useProductCreateMutation();
+  const { mutate, isPending, error } =
+    useProductAdditionalGroupCreateMutation();
 
   return (
     <React.Fragment>
@@ -24,14 +25,14 @@ function ProductCreate() {
           <Heading>상품 추가</Heading>
         </div>
       </div>
-      <ProductForm
+      <ProductAdditionalGroupForm
         isLoading={isPending}
         fieldErrors={error?.fieldErrors}
         handleSubmit={(data) => {
           mutate(data, {
             onSuccess(data) {
               alert("상품을 추가하였습니다");
-              navigate(`/products/${data.id}`, { replace: true });
+              navigate(`/product-additional-groups/${data.id}`, { replace: true });
             },
             onError(error) {
               if (

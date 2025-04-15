@@ -41,6 +41,7 @@ type Product = {
   imageUrl: string;
   status: string;
   size: string;
+  isAdditional: boolean;
   adTitle: string;
   additionalGroupId: number;
   bottomContentBlockId: number;
@@ -49,6 +50,7 @@ type Product = {
     id: number;
     category: ProductCategory;
   }[];
+  addedProductGroups: ProductAdditionalGroup_Product[];
   createdAt: string;
   updatedAt: string;
 };
@@ -71,6 +73,20 @@ type ProductContentBlock = {
   createdAt: string;
   updatedAt: string;
 };
+
+type ProductAdditionalGroup = {
+  id: number;
+  title: string;
+  groupItems: ProductAdditionalGroup_Product[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+type ProductAdditionalGroup_Product = {
+  id: number;
+  group: ProductAdditionalGroup;
+  product: Product;
+}
 
 type User = {
   id: number;
@@ -157,6 +173,18 @@ type PromotionCategory = {
   updatedAt: string;
 };
 
+type PromotionPage = {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  html: string;
+  status: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 type PromotionSection = {
   id: number;
   title: string;
@@ -193,6 +221,13 @@ type SnsSection = {
   createdAt: string;
   updatedAt: string;
 };
+
+type PaginationMeta = {
+  limit: number;
+  page: number;
+  total: number;
+  totalPages: number;
+}
 
 enum DeliveryStatus {
   DELIVERING,

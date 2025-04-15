@@ -18,6 +18,7 @@ import { useProducts } from "@/hooks/use-products.tsx";
 
 export default function ProductsDialog({
   selectedProducts,
+  searchOptions,
   open,
   setOpen,
   onSelect,
@@ -27,13 +28,17 @@ export default function ProductsDialog({
       <DialogTitle>상품 목록</DialogTitle>
       <DialogBody>
         <React.Suspense>
-          <Products selectedProducts={selectedProducts} onSelect={onSelect} />
+          <Products
+            selectedProducts={selectedProducts}
+            searchOptions={searchOptions}
+            onSelect={onSelect}
+          />
         </React.Suspense>
       </DialogBody>
     </Dialog>
   );
 }
-function Products({ selectedProducts, onSelect }) {
+function Products({ selectedProducts, searchOptions, onSelect }) {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [query, setQuery] = React.useState("");
 
@@ -41,9 +46,10 @@ function Products({ selectedProducts, onSelect }) {
     data: { items: products, meta },
   } = useProducts({
     status: "PUBLISHED",
-    currentPage,
+    ...(searchOptions || {}),
     query,
     queryType: "title",
+    currentPage,
   });
 
   return (
