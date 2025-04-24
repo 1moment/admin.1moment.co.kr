@@ -24,110 +24,127 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination.tsx";
 import { Link } from "@/components/ui/link";
+import { Field, Fieldset, Label, Legend } from "@/components/ui/fieldset.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { useUsers } from "@/hooks/use-users.tsx";
 
 function UserCoupons() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page") || 1);
+  const query = searchParams.get("query");
   const {
     data: { items, meta },
-  } = useSuspenseQuery<{ items: UserCoupon[] }>({
-    queryKey: ["users", { page: currentPage }],
-    async queryFn() {
-      const params = new URLSearchParams();
-      params.set("page", `${currentPage}`);
-      const response = await apiClient(`/admin/users?${params.toString()}`);
-      const result = await response.json();
-      return result;
-    },
-  });
+  } = useUsers({ page: currentPage, query });
 
   return (
-    <div className="bg-white rounded-xl">
-      <Table className="mt-3 px-4">
-        <TableHead>
-          <TableRow>
-            <TableHeader className="w-1 whitespace-nowrap text-center">
-              식별자
-            </TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">
-              이메일
-            </TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">
-              이름
-            </TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">
-              연락처
-            </TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">
-              등급
-            </TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">
-              가입방법
-            </TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">
-              가입일
-            </TableHeader>
-            <TableHeader className="w-1 whitespace-nowrap text-center">
-              마지막 로그인 일자
-            </TableHeader>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {items?.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>
-                <div className="flex justify-center">
-                  <Link
-                    className="underline tabular-nums"
-                    to={`/users/${user.id}`}
-                  >
-                    {user.id}
-                  </Link>
-                </div>
-              </TableCell>
-              <TableCell className="text-center">{user.email}</TableCell>
-              <TableCell className="text-center">{user.name}</TableCell>
-
-              <TableCell className="text-center tabular-nums">
-                {user.phoneNumber}
-              </TableCell>
-              <TableCell className="text-center">{user.level}</TableCell>
-              <TableCell className="text-center">{user.authProvider}</TableCell>
-
-              <TableCell className="text-center tabular-nums">
-                {format(new Date(user.createdAt), "yyyy-MM-dd HH:mm:ss")}
-              </TableCell>
-
-              <TableCell className="text-center tabular-nums">
-                {format(new Date(user.lastLoginAt), "yyyy-MM-dd HH:mm:ss")}
-              </TableCell>
+    <React.Fragment>
+      <form className="mb-8 p-4 items-end flex bg-white sm:rounded-xl">
+        <Fieldset className="grow flex flex-col items-start justify-start gap-3">
+          <Legend>검색조건</Legend>
+          <div className="flex items-center justify-center gap-6">
+            <Field className="shrink-0 w-16">
+              <Label>검색어</Label>
+            </Field>
+            <Input
+              className="max-w-80"
+              name="query"
+              placeholder="검색어"
+              defaultValue={searchParams.get("query") as string}
+            />
+          </div>
+        </Fieldset>
+        <Button type="submit">조회</Button>
+      </form>
+      <div className="bg-white rounded-xl">
+        <Table className="mt-3 px-4">
+          <TableHead>
+            <TableRow>
+              <TableHeader className="w-1 whitespace-nowrap text-center">
+                식별자
+              </TableHeader>
+              <TableHeader className="w-1 whitespace-nowrap text-center">
+                이메일
+              </TableHeader>
+              <TableHeader className="w-1 whitespace-nowrap text-center">
+                이름
+              </TableHeader>
+              <TableHeader className="w-1 whitespace-nowrap text-center">
+                연락처
+              </TableHeader>
+              <TableHeader className="w-1 whitespace-nowrap text-center">
+                등급
+              </TableHeader>
+              <TableHeader className="w-1 whitespace-nowrap text-center">
+                가입방법
+              </TableHeader>
+              <TableHeader className="w-1 whitespace-nowrap text-center">
+                가입일
+              </TableHeader>
+              <TableHeader className="w-1 whitespace-nowrap text-center">
+                마지막 로그인 일자
+              </TableHeader>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {items?.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Link
+                      className="underline tabular-nums"
+                      to={`/users/${user.id}`}
+                    >
+                      {user.id}
+                    </Link>
+                  </div>
+                </TableCell>
+                <TableCell className="text-center">{user.email}</TableCell>
+                <TableCell className="text-center">{user.name}</TableCell>
 
-      <Pagination className="p-4">
-        <PaginationPrevious>이전</PaginationPrevious>
-        <PaginationList>
-          {generatePagination(meta.totalPages, meta.page).map((page) => (
-            <PaginationPage
-              key={`page-${page}`}
-              onClick={() => {
-                setSearchParams((searchParams) => {
-                  searchParams.set("page", `${page}`);
-                  return searchParams;
-                });
-              }}
-              current={page === currentPage}
-            >
-              {page}
-            </PaginationPage>
-          ))}
-        </PaginationList>
-        <PaginationNext>다음</PaginationNext>
-      </Pagination>
-    </div>
+                <TableCell className="text-center tabular-nums">
+                  {user.phoneNumber}
+                </TableCell>
+                <TableCell className="text-center">{user.level}</TableCell>
+                <TableCell className="text-center">
+                  {user.authProvider}
+                </TableCell>
+
+                <TableCell className="text-center tabular-nums">
+                  {format(new Date(user.createdAt), "yyyy-MM-dd HH:mm:ss")}
+                </TableCell>
+
+                <TableCell className="text-center tabular-nums">
+                  {format(new Date(user.lastLoginAt), "yyyy-MM-dd HH:mm:ss")}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        <Pagination className="p-4">
+          <PaginationPrevious>이전</PaginationPrevious>
+          <PaginationList>
+            {generatePagination(meta.totalPages, meta.page).map((page) => (
+              <PaginationPage
+                key={`page-${page}`}
+                onClick={() => {
+                  setSearchParams((searchParams) => {
+                    searchParams.set("page", `${page}`);
+                    return searchParams;
+                  });
+                }}
+                current={page === currentPage}
+              >
+                {page}
+              </PaginationPage>
+            ))}
+          </PaginationList>
+          <PaginationNext>다음</PaginationNext>
+        </Pagination>
+      </div>
+    </React.Fragment>
   );
 }
 
