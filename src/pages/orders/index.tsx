@@ -30,6 +30,10 @@ import { Select } from "@/components/ui/select.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
 import { useOrders } from "@/hooks/use-orders.tsx";
+import {
+  OrderStatusBadge,
+  DeliveryStatusBadge,
+} from "@/components/ui/badge.tsx";
 
 const currentDate = new Date();
 function Orders() {
@@ -220,7 +224,9 @@ function Orders() {
                   {order.id}
                 </Link>
               </TableCell>
-              <TableCell>{order.status}</TableCell>
+              <TableCell>
+                <OrderStatusBadge orderStatus={order.status} />
+              </TableCell>
               <TableCell>
                 {order.user ? (
                   <React.Fragment>
@@ -247,7 +253,9 @@ function Orders() {
                 )}
               </TableCell>
               <TableCell>{order.deliveryMethod?.title}</TableCell>
-              <TableCell>{order.deliveryStatus}</TableCell>
+              <TableCell>
+                <DeliveryStatusBadge deliveryStatus={order.deliveryStatus} />
+              </TableCell>
               <TableCell>
                 <Strong>
                   {order.receiverName} / {order.receiverPhoneNumber}
