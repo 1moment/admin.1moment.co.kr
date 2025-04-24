@@ -10,6 +10,7 @@ export function useOrders({
   deliveryStatus,
   queryType,
   query,
+  userId,
 }) {
   return useSuspenseQuery<{ items: Order[] }>({
     queryKey: [
@@ -23,6 +24,7 @@ export function useOrders({
         deliveryStatus,
         queryType,
         query,
+        userId,
       },
     ],
     async queryFn() {
@@ -37,6 +39,7 @@ export function useOrders({
       if (queryType) params.set("queryType", queryType);
       if (query) params.set("query", query);
       if (status) params.set("status", status);
+      if (userId) params.set("userId", userId);
       const response = await apiClient(`/admin/orders?${params.toString()}`);
       const result = await response.json();
       return result;
@@ -73,13 +76,16 @@ export function useOrderMessagePrint(orderId: number) {
 export function useReserve(orderId: number) {
   return useMutation({
     async mutationFn(partner: string) {
-      const response = await apiClient(`/reserve/${partner}?secret=f1d80654-3f7e-49e0-a43e-8678dbb47220`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderIds: [orderId],
-        }),
-      });
+      const response = await apiClient(
+        `/reserve/${partner}?secret=f1d80654-3f7e-49e0-a43e-8678dbb47220`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderIds: [orderId],
+          }),
+        },
+      );
       const result = await response.json();
       return result;
     },
