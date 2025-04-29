@@ -1,10 +1,8 @@
 import * as React from "react";
-import { apiClient } from "@/utils/api-client.ts";
 import { format } from "date-fns/format";
 import * as Sentry from "@sentry/react";
 
-import { useParams } from "react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useParams, useSearchParams } from "react-router";
 
 import { Heading, Subheading } from "@/components/ui/heading.tsx";
 import {
@@ -25,7 +23,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import { OrderStatusBadge, DeliveryStatusBadge } from "@/components/ui/badge.tsx";
+import {
+  OrderStatusBadge,
+  DeliveryStatusBadge,
+} from "@/components/ui/badge.tsx";
+import {
+  Pagination,
+  PaginationList,
+  PaginationNext,
+  PaginationPage,
+  PaginationPrevious,
+} from "@/components/ui/pagination.tsx";
+import { generatePagination } from "@/utils/generate-pagination-array.ts";
 
 function User() {
   const params = useParams<{ "user-id": string }>();
@@ -33,7 +42,6 @@ function User() {
   const userId = Number(params["user-id"]);
   const { data: user } = useUser(userId);
 
-  console.log(user);
   return (
     <React.Fragment>
       <div className="flex justify-between">
@@ -79,11 +87,13 @@ function User() {
 
 function Orders() {
   const params = useParams<{ "user-id": string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
 
+  const ordersPage = Number(searchParams.get("ordersPage") || 1);
   const userId = Number(params["user-id"]);
   const {
     data: { items: orders, meta },
-  } = useOrders({ userId });
+  } = useOrders({ userId, currentPage: ordersPage });
 
   return (
     <div className="mt-10 p-4 bg-white rounded-xl">
@@ -94,7 +104,8 @@ function Orders() {
             <TableHeader>주문ID</TableHeader>
             <TableHeader>주문상태</TableHeader>
             <TableHeader>배송상태</TableHeader>
-            <TableHeader>결제 금액</TableHeader>
+            <TableHeader>결제금액</TableHeader>
+            <TableHeader>주문일자</TableHeader>
           </TableRow>
         </TableHead>
         {orders.length > 0 ? (
@@ -113,6 +124,9 @@ function Orders() {
                 <TableCell>
                   {Number(order.totalProductPrice).toLocaleString("ko-KR")}원
                 </TableCell>
+                <TableCell className="tabular-nums">
+                  {format(new Date(order.createdAt), "yyyy-MM-dd HH:mm:ss")}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -124,6 +138,26 @@ function Orders() {
           </TableBody>
         )}
       </Table>
+      <Pagination className="mt-8">
+        <PaginationPrevious>이전</PaginationPrevious>
+        <PaginationList>
+          {generatePagination(meta.totalPages, meta.page).map((page) => (
+            <PaginationPage
+              key={`ordersPage-${page}`}
+              onClick={() => {
+                setSearchParams((searchParams) => {
+                  searchParams.set("ordersPage", `${page}`);
+                  return searchParams;
+                });
+              }}
+              current={page === ordersPage}
+            >
+              {page}
+            </PaginationPage>
+          ))}
+        </PaginationList>
+        <PaginationNext>다음</PaginationNext>
+      </Pagination>
     </div>
   );
 }

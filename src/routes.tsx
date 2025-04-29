@@ -102,6 +102,8 @@ const UserPage = React.lazy(() => import("./pages/users/[user-id]"));
 
 const UserCouponsPage = React.lazy(() => import("./pages/user-coupons"));
 
+const Worksheet = React.lazy(() => import("./pages/worksheet"));
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
@@ -211,6 +213,8 @@ export default function AppRoutes() {
           </Route>
 
           <Route path="user-coupons" element={<UserCouponsPage />} />
+
+          <Route path="worksheet" element={<Worksheet />} />
         </Route>
       </Routes>
     </BrowserRouter>
