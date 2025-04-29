@@ -89,6 +89,11 @@ export default function Layout({ children }) {
                 <ReceiptTextIcon />
                 <SidebarLabel>주문</SidebarLabel>
               </SidebarItem>
+
+              <SidebarItem to="/worksheet">
+                <ReceiptTextIcon />
+                <SidebarLabel>작업계획서</SidebarLabel>
+              </SidebarItem>
             </SidebarSection>
 
             <SidebarSection className="max-lg:hidden">

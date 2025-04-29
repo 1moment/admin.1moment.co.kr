@@ -102,7 +102,7 @@ export function OrderStatusBadge({ orderStatus }) {
     return <Badge color="yellow">취소요청</Badge>;
   }
 
-  if (orderStatus === "CANCELLED") {
+  if (orderStatus === "CANCELED") {
     return <Badge color="red">취소완료</Badge>;
   }
 }

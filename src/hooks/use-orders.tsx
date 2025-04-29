@@ -3,6 +3,7 @@ import { apiClient } from "@/utils/api-client.ts";
 
 export function useOrders({
   currentPage = 1,
+  limit = 20,
   status,
   startDate,
   endDate,
@@ -11,12 +12,14 @@ export function useOrders({
   queryType,
   query,
   userId,
+  deliveryDate,
 }) {
   return useSuspenseQuery<{ items: Order[] }>({
     queryKey: [
       "orders",
       {
         page: currentPage,
+        limit,
         status,
         startDate,
         endDate,
@@ -25,12 +28,13 @@ export function useOrders({
         queryType,
         query,
         userId,
+        deliveryDate,
       },
     ],
     async queryFn() {
       const params = new URLSearchParams();
       params.set("page", `${currentPage}`);
-      params.set("limit", "20");
+      params.set("limit", String(limit));
       if (startDate) params.set("startDate", startDate);
       if (endDate) params.set("endDate", endDate);
       if (deliveryMethodType)
@@ -40,6 +44,7 @@ export function useOrders({
       if (query) params.set("query", query);
       if (status) params.set("status", status);
       if (userId) params.set("userId", userId);
+      if (deliveryDate) params.set("deliveryDate", deliveryDate);
       const response = await apiClient(`/admin/orders?${params.toString()}`);
       const result = await response.json();
       return result;
