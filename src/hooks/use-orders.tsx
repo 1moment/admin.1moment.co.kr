@@ -96,3 +96,42 @@ export function useReserve(orderId: number) {
     },
   });
 }
+
+export function useOrderAssignment() {
+  return useMutation<any, Error, { orderId: number; adminUserId: number }>({
+    async mutationFn(data) {
+      const { orderId } = data;
+      const response = await apiClient(
+        `/admin/orders/${orderId}/work-assignment`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            isAssigned: true
+          }),
+        },
+      );
+      const result = await response.json();
+      return result;
+    },
+  });
+}
+
+export function useOrderShipment(orderId: number) {
+  return useMutation<any, Error, { imageUrl: number }>({
+    async mutationFn(data) {
+      const response = await apiClient(
+          `/admin/orders/${orderId}/shipment`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              imageUrl: data.imageUrl,
+            }),
+          },
+      );
+      const result = await response.json();
+      return result;
+    },
+  });
+}

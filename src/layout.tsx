@@ -4,7 +4,7 @@ import {
   NavbarItem,
   NavbarSection,
   NavbarSpacer,
-} from "@/components/navbar";
+} from "@/components/ui/navbar";
 import {
   Dropdown,
   DropdownButton,
@@ -39,7 +39,9 @@ import {
   SmilePlusIcon,
   TicketsIcon,
   LayoutTemplateIcon,
-  HomeIcon, LayersIcon, PackagePlusIcon,
+  HomeIcon,
+  LayersIcon,
+  PackagePlusIcon,
 } from "lucide-react";
 
 import UserContext from "./contexts/user-context.ts";
@@ -48,10 +50,11 @@ export default function Layout({ children }) {
   const currentUser = React.use(UserContext);
   return (
     <SidebarLayout
+      navbar={null}
       sidebar={
         <Sidebar>
           <SidebarHeader>
-            <SidebarSection className="max-lg:hidden">
+            <SidebarSection>
               <SidebarItem to="/">
                 <HomeIcon />
                 <SidebarLabel>메인</SidebarLabel>
@@ -59,7 +62,7 @@ export default function Layout({ children }) {
             </SidebarSection>
           </SidebarHeader>
           <SidebarBody>
-            <SidebarSection className="max-lg:hidden">
+            <SidebarSection>
               <SidebarHeading>상품관련</SidebarHeading>
               <SidebarItem to="/product-categories">
                 <SquareStackIcon />
@@ -83,7 +86,7 @@ export default function Layout({ children }) {
               </SidebarItem>
             </SidebarSection>
 
-            <SidebarSection className="max-lg:hidden">
+            <SidebarSection>
               <SidebarHeading>주문</SidebarHeading>
               <SidebarItem to="/orders">
                 <ReceiptTextIcon />
@@ -94,9 +97,14 @@ export default function Layout({ children }) {
                 <ReceiptTextIcon />
                 <SidebarLabel>작업계획서</SidebarLabel>
               </SidebarItem>
+
+              <SidebarItem to="/shipping-management">
+                <ReceiptTextIcon />
+                <SidebarLabel>출고</SidebarLabel>
+              </SidebarItem>
             </SidebarSection>
 
-            <SidebarSection className="max-lg:hidden">
+            <SidebarSection>
               <SidebarHeading>홈페이지</SidebarHeading>
               <SidebarItem to="/banners">
                 <PanelTopIcon />
@@ -124,7 +132,7 @@ export default function Layout({ children }) {
               </SidebarItem>
             </SidebarSection>
 
-            <SidebarSection className="max-lg:hidden">
+            <SidebarSection>
               <SidebarHeading>혜택</SidebarHeading>
               <SidebarItem to="/coupons">
                 <TicketIcon />
@@ -142,7 +150,7 @@ export default function Layout({ children }) {
               </SidebarItem>
             </SidebarSection>
 
-            <SidebarSection className="max-lg:hidden">
+            <SidebarSection>
               <SidebarHeading>유저</SidebarHeading>
               <SidebarItem to="/users">
                 <UsersIcon />
@@ -155,7 +163,7 @@ export default function Layout({ children }) {
               </SidebarItem>
             </SidebarSection>
           </SidebarBody>
-          <SidebarFooter className="max-lg:hidden">
+          <SidebarFooter>
             <Dropdown>
               <DropdownButton as={SidebarItem}>
                 <div className="grow flex min-w-0 items-center gap-3">

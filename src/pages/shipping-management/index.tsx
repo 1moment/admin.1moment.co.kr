@@ -19,7 +19,11 @@ import { Field, Label } from "@/components/ui/fieldset.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
-import { useOrderAssignment, useOrders } from "@/hooks/use-orders.tsx";
+import {
+  useOrderAssignment,
+  useOrders,
+  useOrderShipment,
+} from "@/hooks/use-orders.tsx";
 import {
   OrderStatusBadge,
   DeliveryStatusBadge,
@@ -28,6 +32,7 @@ import {
 import { Navbar, NavbarItem, NavbarSection } from "@/components/ui/navbar.tsx";
 import UserContext from "../../contexts/user-context.ts";
 import { useAdminUsers } from "@/hooks/use-admin-users.tsx";
+import useFileUploadMutation from "@/hooks/use-file-upload-mutation.tsx";
 
 const timeOrder = {
   QUICK: 0,
@@ -45,11 +50,7 @@ function Worksheet() {
   const deliveryMethodType =
     searchParams.get("deliveryMethodType") || "DELIVERY";
   const deliveryDate =
-    searchParams.get("deliveryDate") ||
-    format(
-      deliveryMethodType === "DELIVERY" ? addDays(currentDate, 1) : currentDate,
-      "yyyy-MM-dd",
-    );
+    searchParams.get("deliveryDate") || format(currentDate, "yyyy-MM-dd");
 
   const {
     data: { items, meta },
@@ -65,6 +66,7 @@ function Worksheet() {
 
   const { data: adminUsers } = useAdminUsers();
 
+  console.log(items);
   const workAssign = React.useCallback(
     (data) => {
       _workAssign(data, {
@@ -104,36 +106,13 @@ function Worksheet() {
         </form>
       </div>
       <div className="mt-8 py-4 bg-white border border-gray-100 rounded-xl">
-        <Navbar>
-          <NavbarSection>
-            <NavbarItem
-              to="?deliveryMethodType=DELIVERY"
-              current={deliveryMethodType === "DELIVERY"}
-            >
-              택배
-            </NavbarItem>
-            <NavbarItem
-              to="?deliveryMethodType=QUICK,PICKUP"
-              current={deliveryMethodType === "QUICK,PICKUP"}
-            >
-              퀵 / 방문수령
-            </NavbarItem>
-          </NavbarSection>
-        </Navbar>
-
-        <hr className="mb-5 border-gray-100" />
-
         <Table className="px-4 overflow-x-auto">
           <TableHead>
             <TableRow>
               <TableHeader className="text-center">주문번호</TableHeader>
-              {deliveryMethodType.includes("QUICK") && (
-                <TableHeader className="text-center">시간대</TableHeader>
-              )}
-              <TableHeader className="text-center">담당자</TableHeader>
+              <TableHeader className="text-center">수령인</TableHeader>
               <TableHeader>주문상품</TableHeader>
-              <TableHeader>배송방식</TableHeader>
-              <TableHeader>주문상태</TableHeader>
+              <TableHeader>사진</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -149,36 +128,9 @@ function Worksheet() {
                       {order.id}
                     </Link>
                   </TableCell>
-                  {deliveryMethodType.includes("QUICK") && (
-                    <TableCell>
-                      <div className="flex justify-center">
-                        <DeliveryReceivingTimeBadge
-                          receivingTime={order.receivingTime}
-                        />
-                      </div>
-                    </TableCell>
-                  )}
                   <TableCell>
-                    {order.workAssignment ? (
-                      <p>
-                        {
-                          adminUsers.find(
-                            (au) => au.id === order.workAssignment.adminUserId,
-                          ).name
-                        }
-                      </p>
-                    ) : currentUser.groups.includes('florist') && (
-                      <Button
-                        onClick={() => {
-                          workAssign({
-                            orderId: order.id,
-                            adminUserId: currentUser.sub,
-                          });
-                        }}
-                      >
-                        배정받기
-                      </Button>
-                    )}
+                    <p>{order.receiverName}</p>
+                    <p>{order.receiverPhoneNumber}</p>
                   </TableCell>
                   <TableCell>
                     <ul className="flex flex-col gap-2">
@@ -201,9 +153,11 @@ function Worksheet() {
                       ))}
                     </ul>
                   </TableCell>
-                  <TableCell>{order.deliveryMethod?.title}</TableCell>
                   <TableCell>
-                    <OrderStatusBadge orderStatus={order.status} />
+                    <FileInput
+                      orderId={order.id}
+                      imageUrl={order.shipment?.imageUrl}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
@@ -214,10 +168,52 @@ function Worksheet() {
   );
 }
 
+function FileInput({ orderId, imageUrl }) {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const { mutate: fileUpload } = useFileUploadMutation();
+  const { mutate: attachImageToOrder } = useOrderShipment(orderId);
+
+  return (
+    <React.Fragment>
+      <div className="flex flex-col items-center gap-3">
+      {imageUrl && <img
+          src={imageUrl} alt=""
+      />}
+      <Button
+        onClick={() => {
+          fileInputRef.current!.click();
+        }}
+      >
+        {imageUrl ? '이미지 변경' : '이미지 첨부'}
+      </Button>
+      </div>
+      <Input
+        ref={fileInputRef}
+        className="hidden"
+        type="file"
+        accept="image/*"
+        onChange={({ target, currentTarget: { files } }) => {
+          if (files?.[0]) {
+            fileUpload(files[0], {
+              onSuccess(data) {
+                console.log("gfdgd", data);
+                attachImageToOrder({ imageUrl: data.url });
+              },
+              onSettled() {
+                target.value = "";
+              },
+            });
+          }
+        }}
+      />
+    </React.Fragment>
+  );
+}
+
 export default function Page() {
   return (
     <React.Fragment>
-      <Heading>작업계획서</Heading>
+      <Heading>출고</Heading>
       <Sentry.ErrorBoundary
         fallback={({ error, componentStack }) => {
           console.error(error, componentStack);

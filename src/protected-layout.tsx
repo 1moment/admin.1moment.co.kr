@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from "react-router";
 import UserContext from "./contexts/user-context.ts";
 
 import Layout from "./layout.tsx";
-import { fetchUserAttributes } from "aws-amplify/auth";
+import { fetchUserAttributes, fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
 
 export default function ProtectedLayout() {
   const navigate = useNavigate();
@@ -13,7 +13,16 @@ export default function ProtectedLayout() {
 
   React.useEffect(() => {
     fetchUserAttributes()
-      .then(setUser)
+      .then((userAttributes) => {
+        return fetchAuthSession().then((session) => {
+          setUser({
+            id: userAttributes.sub,
+            name: userAttributes.name,
+            email: userAttributes.email,
+            groups: session.tokens?.idToken?.payload['cognito:groups'],
+          })
+        })
+      })
       .catch((error) => {
         navigate("/login", { replace: true });
       })
