@@ -89,6 +89,8 @@ const PromotionSectionPage = React.lazy(
 
 const ReviewsPage = React.lazy(() => import("./pages/reviews"));
 
+const ShippingManagementPage = React.lazy(() => import('./pages/shipping-management'));
+
 const SnsSectionsPage = React.lazy(() => import("./pages/sns-sections"));
 const SnsSectionCreatePage = React.lazy(
   () => import("./pages/sns-sections/create"),
@@ -204,6 +206,10 @@ export default function AppRoutes() {
 
           <Route path="reviews">
             <Route path="" element={<ReviewsPage />} />
+          </Route>
+
+          <Route path="shipping-management">
+            <Route path="" element={<ShippingManagementPage />} />
           </Route>
 
           <Route path="sns-sections">

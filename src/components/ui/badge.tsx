@@ -132,3 +132,21 @@ export function DeliveryStatusBadge({ deliveryStatus }) {
     return <Badge color="red">배송실패</Badge>;
   }
 }
+
+export function DeliveryReceivingTimeBadge({ receivingTime }) {
+  if (receivingTime === 'QUICK') {
+    return <Badge color="orange">QUICK</Badge>
+  }
+
+  if (receivingTime === 'MORNING') {
+    return <Badge color="green">MORNING</Badge>
+  }
+
+  if (receivingTime === 'AFTERNOON') {
+    return <Badge color="lime">AFTERNOON</Badge>
+  }
+
+  if (receivingTime === 'EVENING') {
+    return <Badge color="yellow">EVENING</Badge>
+  }
+}
