@@ -104,7 +104,7 @@ function Worksheet() {
         </form>
       </div>
       <div className="mt-8 py-4 bg-white border border-gray-100 rounded-xl">
-        <Navbar>
+        <Navbar className="px-4">
           <NavbarSection>
             <NavbarItem
               to="?deliveryMethodType=DELIVERY"
@@ -164,20 +164,38 @@ function Worksheet() {
                   )}
                   <TableCell>
                     {order.workAssignment ? (
-                      <p>
-                        {
-                          adminUsers.find(
-                            (au) => au.id === order.workAssignment.adminUserId,
-                          ).name
-                        }
-                      </p>
+                      <React.Fragment>
+                        {currentUser.id ===
+                        order.workAssignment?.adminUserId ? (
+                          <Button
+                            color="orange"
+                            onClick={() => {
+                              workAssign({
+                                orderId: order.id,
+                                adminUserId: null,
+                              });
+                            }}
+                          >
+                            배정 취소
+                          </Button>
+                        ) : (
+                          <p>
+                            {
+                              adminUsers.find(
+                                (au) =>
+                                  au.id === order.workAssignment.adminUserId,
+                              ).name
+                            }
+                          </p>
+                        )}
+                      </React.Fragment>
                     ) : (
                       currentUser.groups.includes("florist") && (
                         <Button
                           onClick={() => {
                             workAssign({
                               orderId: order.id,
-                              adminUserId: currentUser.sub,
+                              adminUserId: currentUser.id,
                             });
                           }}
                         >
