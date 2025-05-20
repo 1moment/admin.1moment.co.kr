@@ -45,10 +45,8 @@ const currentDate = new Date();
 function Worksheet() {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentUser = React.use(UserContext);
-  console.log(currentUser);
 
-  const deliveryMethodType =
-    searchParams.get("deliveryMethodType") || "";
+  const deliveryMethodType = searchParams.get("deliveryMethodType") || "";
   const deliveryDate =
     searchParams.get("deliveryDate") || format(currentDate, "yyyy-MM-dd");
 
@@ -62,21 +60,6 @@ function Worksheet() {
     deliveryDate,
     deliveryMethodType,
   });
-  const { mutate: _workAssign } = useOrderAssignment();
-
-  const { data: adminUsers } = useAdminUsers();
-
-  console.log(items);
-  const workAssign = React.useCallback(
-    (data) => {
-      _workAssign(data, {
-        onSuccess() {
-          refetch();
-        },
-      });
-    },
-    [_workAssign, refetch],
-  );
 
   return (
     <React.Fragment>
@@ -135,20 +118,24 @@ function Worksheet() {
                   <TableCell>
                     <ul className="flex flex-col gap-2">
                       {order.items.map((item) => (
-                        <li key={`item-${item.id}`}>
-                          <div className="flex items-center gap-3">
-                            <img
-                              width={48}
-                              height={48}
-                              className="rounded"
-                              alt=""
-                              src={item.product.imageUrl}
-                            />
-                            <Link to={`/products/${item.product.id}`}>
-                              {item.productItem.title}
-                            </Link>
-                            {item.quantity}개
-                          </div>
+                        <li
+                          key={`item-${item.id}`}
+                          className="flex items-center gap-3"
+                        >
+                          <img
+                            width={48}
+                            height={48}
+                            className="rounded"
+                            alt=""
+                            src={`${item.product.imageUrl}?width=96`}
+                          />
+                          <Link
+                            className="whitespace-break-spaces"
+                            to={`/products/${item.product.id}`}
+                          >
+                            {item.productItem.title}
+                            &nbsp;{item.quantity}개
+                          </Link>
                         </li>
                       ))}
                     </ul>
@@ -157,6 +144,7 @@ function Worksheet() {
                     <FileInput
                       orderId={order.id}
                       imageUrl={order.shipment?.imageUrl}
+                      refetch={refetch}
                     />
                   </TableCell>
                 </TableRow>
@@ -168,24 +156,33 @@ function Worksheet() {
   );
 }
 
-function FileInput({ orderId, imageUrl }) {
+function FileInput({ orderId, imageUrl: _imageUrl, refetch }) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { mutate: fileUpload } = useFileUploadMutation();
   const { mutate: attachImageToOrder } = useOrderShipment(orderId);
 
+  const [imageUrl, setImageUrl] = React.useState(_imageUrl);
+  const [isPending, setIsPending] = React.useState(false);
+
   return (
     <React.Fragment>
       <div className="flex flex-col items-center gap-3">
-      {imageUrl && <img
-          src={imageUrl} alt=""
-      />}
-      <Button
-        onClick={() => {
-          fileInputRef.current!.click();
-        }}
-      >
-        {imageUrl ? '이미지 변경' : '이미지 첨부'}
-      </Button>
+        {imageUrl && (
+          <picture>
+            <source
+              srcSet={`${imageUrl}?width=100 1x, ${imageUrl}?width=200 2x`}
+            />
+            <img src={`${imageUrl}?width=100`} alt="" className="rounded" />
+          </picture>
+        )}
+        <Button
+          isLoading={isPending}
+          onClick={() => {
+            fileInputRef.current!.click();
+          }}
+        >
+          {imageUrl ? "이미지 변경" : "이미지 첨부"}
+        </Button>
       </div>
       <Input
         ref={fileInputRef}
@@ -194,10 +191,23 @@ function FileInput({ orderId, imageUrl }) {
         accept="image/*"
         onChange={({ target, currentTarget: { files } }) => {
           if (files?.[0]) {
+            setIsPending(true);
             fileUpload(files[0], {
               onSuccess(data) {
-                console.log("gfdgd", data);
-                attachImageToOrder({ imageUrl: data.url });
+                attachImageToOrder(
+                  { imageUrl: data.url },
+                  {
+                    onSuccess(data) {
+                      setImageUrl(data.imageUrl);
+                    },
+                    onSettled() {
+                      setIsPending(false);
+                    },
+                  },
+                );
+              },
+              onError() {
+                setIsPending(false);
               },
               onSettled() {
                 target.value = "";
