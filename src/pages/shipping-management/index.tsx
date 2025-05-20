@@ -48,7 +48,7 @@ function Worksheet() {
   console.log(currentUser);
 
   const deliveryMethodType =
-    searchParams.get("deliveryMethodType") || "DELIVERY";
+    searchParams.get("deliveryMethodType") || "";
   const deliveryDate =
     searchParams.get("deliveryDate") || format(currentDate, "yyyy-MM-dd");
 
