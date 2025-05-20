@@ -168,12 +168,14 @@ function FileInput({ orderId, imageUrl: _imageUrl, refetch }) {
     <React.Fragment>
       <div className="flex flex-col items-center gap-3">
         {imageUrl && (
-          <picture>
-            <source
-              srcSet={`${imageUrl}?width=100 1x, ${imageUrl}?width=200 2x`}
-            />
-            <img src={`${imageUrl}?width=100`} alt="" className="rounded" />
-          </picture>
+          <a href={imageUrl} target="_blank">
+            <picture>
+              <source
+                srcSet={`${imageUrl}?width=100 1x, ${imageUrl}?width=200 2x`}
+              />
+              <img src={`${imageUrl}?width=100`} alt="" className="rounded" />
+            </picture>
+          </a>
         )}
         <Button
           isLoading={isPending}
