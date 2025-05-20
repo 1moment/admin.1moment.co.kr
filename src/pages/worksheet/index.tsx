@@ -142,6 +142,10 @@ function Worksheet() {
                 (a, b) =>
                   timeOrder[a.receivingTime] - timeOrder[b.receivingTime],
               )
+              .sort((a, b) => {
+                if (a.workAssignment && !b.workAssignment) return 1;
+                if (!a.workAssignment && b.workAssignment) return -1;
+              })
               .map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="text-center">
@@ -167,17 +171,19 @@ function Worksheet() {
                           ).name
                         }
                       </p>
-                    ) : currentUser.groups.includes('florist') && (
-                      <Button
-                        onClick={() => {
-                          workAssign({
-                            orderId: order.id,
-                            adminUserId: currentUser.sub,
-                          });
-                        }}
-                      >
-                        배정받기
-                      </Button>
+                    ) : (
+                      currentUser.groups.includes("florist") && (
+                        <Button
+                          onClick={() => {
+                            workAssign({
+                              orderId: order.id,
+                              adminUserId: currentUser.sub,
+                            });
+                          }}
+                        >
+                          배정받기
+                        </Button>
+                      )
                     )}
                   </TableCell>
                   <TableCell>
