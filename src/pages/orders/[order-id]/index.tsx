@@ -20,11 +20,13 @@ import {
   useReserve,
 } from "@/hooks/use-orders.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
+import { useAdminUsers } from "@/hooks/use-admin-users.tsx";
 
 function Coupon() {
   const params = useParams<{ "order-id": string }>();
 
   const orderId = Number(params["order-id"]);
+  const { data: adminUsers } = useAdminUsers();
   const { data: order } = useOrder(orderId);
   const { mutate: print, isPending } = useOrderMessagePrint(orderId);
   const { mutate: reserve } = useReserve(orderId);
@@ -249,6 +251,25 @@ function Coupon() {
                 </LinkButton>
               </div>
             )}
+          </DescriptionDetails>
+        </DescriptionList>
+      </div>
+
+      <div className="mt-10 p-4 bg-white sm:rounded-xl">
+        <Subheading>출고</Subheading>
+        <DescriptionList className="mt-4">
+          <DescriptionTerm>작업 담당자</DescriptionTerm>
+          <DescriptionDetails>
+            {order.workAssignment?.adminUserId
+              ? adminUsers.find(
+                  (u) => u.id === order.workAssignment?.adminUserId,
+                ).name
+              : "-"}
+          </DescriptionDetails>
+
+          <DescriptionTerm>사진</DescriptionTerm>
+          <DescriptionDetails>
+            {order.shipment && <img src={order.shipment.imageUrl} alt="" />}
           </DescriptionDetails>
         </DescriptionList>
       </div>

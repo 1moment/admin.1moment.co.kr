@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as Sentry from "@sentry/react";
 import { format } from "date-fns/format";
-import { addDays } from "date-fns/addDays";
 
 import { useSearchParams } from "react-router";
 
@@ -19,11 +18,7 @@ import { Field, Label } from "@/components/ui/fieldset.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
-import {
-  useOrderAssignment,
-  useOrders,
-  useOrderShipment,
-} from "@/hooks/use-orders.tsx";
+import { useOrders, useOrderShipment } from "@/hooks/use-orders.tsx";
 import {
   OrderStatusBadge,
   DeliveryStatusBadge,
@@ -31,7 +26,6 @@ import {
 } from "@/components/ui/badge.tsx";
 import { Navbar, NavbarItem, NavbarSection } from "@/components/ui/navbar.tsx";
 import UserContext from "../../contexts/user-context.ts";
-import { useAdminUsers } from "@/hooks/use-admin-users.tsx";
 import useFileUploadMutation from "@/hooks/use-file-upload-mutation.tsx";
 
 const timeOrder = {
@@ -46,7 +40,8 @@ function Worksheet() {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentUser = React.use(UserContext);
 
-  const deliveryMethodType = searchParams.get("deliveryMethodType") || "";
+  const deliveryMethodType =
+    searchParams.get("deliveryMethodType") || "DELIVERY";
   const deliveryDate =
     searchParams.get("deliveryDate") || format(currentDate, "yyyy-MM-dd");
 
@@ -89,11 +84,33 @@ function Worksheet() {
         </form>
       </div>
       <div className="mt-8 py-4 bg-white border border-gray-100 rounded-xl">
+        <Navbar className="px-4">
+          <NavbarSection>
+            <NavbarItem
+              to={`?deliveryMethodType=DELIVERY&deliveryDate=${deliveryDate}`}
+              current={deliveryMethodType === "DELIVERY"}
+            >
+              택배
+            </NavbarItem>
+            <NavbarItem
+              to={`?deliveryMethodType=QUICK,PICKUP&deliveryDate=${deliveryDate}`}
+              current={deliveryMethodType === "QUICK,PICKUP"}
+            >
+              퀵 / 방문수령
+            </NavbarItem>
+          </NavbarSection>
+        </Navbar>
+
+        <hr className="mb-5 border-gray-100" />
+
         <Table className="px-4 overflow-x-auto">
           <TableHead>
             <TableRow>
               <TableHeader className="text-center">주문번호</TableHeader>
               <TableHeader className="text-center">수령인</TableHeader>
+              {deliveryMethodType === "QUICK,PICKUP" && (
+                <TableCell className="text-center">시간대</TableCell>
+              )}
               <TableHeader>주문상품</TableHeader>
               <TableHeader>사진</TableHeader>
             </TableRow>
@@ -115,6 +132,15 @@ function Worksheet() {
                     <p>{order.receiverName}</p>
                     <p>{order.receiverPhoneNumber}</p>
                   </TableCell>
+                  {deliveryMethodType === "QUICK,PICKUP" && (
+                    <TableCell>
+                      <div className="flex justify-center">
+                        <DeliveryReceivingTimeBadge
+                          receivingTime={order.receivingTime}
+                        />
+                      </div>
+                    </TableCell>
+                  )}
                   <TableCell>
                     <ul className="flex flex-col gap-2">
                       {order.items.map((item) => (

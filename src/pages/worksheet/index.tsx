@@ -40,7 +40,6 @@ const currentDate = new Date();
 function Worksheet() {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentUser = React.use(UserContext);
-  console.log(currentUser);
 
   const deliveryMethodType =
     searchParams.get("deliveryMethodType") || "DELIVERY";
