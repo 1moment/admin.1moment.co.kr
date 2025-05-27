@@ -19,11 +19,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
 import { useOrders, useOrderShipment } from "@/hooks/use-orders.tsx";
-import {
-  OrderStatusBadge,
-  DeliveryStatusBadge,
-  DeliveryReceivingTimeBadge,
-} from "@/components/ui/badge.tsx";
+import { DeliveryReceivingTimeBadge } from "@/components/ui/badge.tsx";
 import { Navbar, NavbarItem, NavbarSection } from "@/components/ui/navbar.tsx";
 import UserContext from "../../contexts/user-context.ts";
 import useFileUploadMutation from "@/hooks/use-file-upload-mutation.tsx";
@@ -38,7 +34,6 @@ const timeOrder = {
 const currentDate = new Date();
 function Worksheet() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentUser = React.use(UserContext);
 
   const deliveryMethodType =
     searchParams.get("deliveryMethodType") || "DELIVERY";
@@ -47,7 +42,6 @@ function Worksheet() {
 
   const {
     data: { items, meta },
-    refetch,
   } = useOrders({
     currentPage: 1,
     limit: 1000,
@@ -167,11 +161,7 @@ function Worksheet() {
                     </ul>
                   </TableCell>
                   <TableCell>
-                    <FileInput
-                      orderId={order.id}
-                      imageUrl={order.shipment?.imageUrl}
-                      refetch={refetch}
-                    />
+                    <FileInput orderId={order.id} imageUrl={order.imageUrl} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -182,7 +172,7 @@ function Worksheet() {
   );
 }
 
-function FileInput({ orderId, imageUrl: _imageUrl, refetch }) {
+function FileInput({ orderId, imageUrl: _imageUrl }) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { mutate: fileUpload } = useFileUploadMutation();
   const { mutate: attachImageToOrder } = useOrderShipment(orderId);
