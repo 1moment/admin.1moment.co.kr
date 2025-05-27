@@ -71,7 +71,9 @@ export function useOrder(orderId: number) {
 export function useOrderMessagePrint(orderId: number) {
   return useMutation({
     async mutationFn() {
-      const response = await apiClient(`/admin/orders/${orderId}/printer`);
+      const response = await apiClient(`/admin/orders/${orderId}/printer`, {
+        method: "POST",
+      });
       const result = await response.json();
       return result;
     },
@@ -107,7 +109,7 @@ export function useOrderAssignment() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            isAssigned: true
+            isAssigned: true,
           }),
         },
       );
@@ -120,16 +122,13 @@ export function useOrderAssignment() {
 export function useOrderShipment(orderId: number) {
   return useMutation<any, Error, { imageUrl: number }>({
     async mutationFn(data) {
-      const response = await apiClient(
-          `/admin/orders/${orderId}/shipment`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              imageUrl: data.imageUrl,
-            }),
-          },
-      );
+      const response = await apiClient(`/admin/orders/${orderId}/shipment`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageUrl: data.imageUrl,
+        }),
+      });
       const result = await response.json();
       return result;
     },
