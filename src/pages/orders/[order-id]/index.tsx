@@ -269,7 +269,7 @@ function Coupon() {
 
           <DescriptionTerm>사진</DescriptionTerm>
           <DescriptionDetails>
-            {order.shipment && <img src={order.shipment.imageUrl} alt="" />}
+            {order.imageUrl && <img src={order.imageUrl} alt="" />}
           </DescriptionDetails>
         </DescriptionList>
       </div>
