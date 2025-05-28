@@ -84,7 +84,7 @@ export function useReserve(orderId: number) {
   return useMutation({
     async mutationFn(partner: string) {
       const response = await apiClient(
-        `/reserve/${partner}?secret=f1d80654-3f7e-49e0-a43e-8678dbb47220`,
+        `/admin/reserve/${partner}?secret=f1d80654-3f7e-49e0-a43e-8678dbb47220`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
