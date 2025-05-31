@@ -28,8 +28,8 @@ function Coupon() {
   const orderId = Number(params["order-id"]);
   const { data: adminUsers } = useAdminUsers();
   const { data: order } = useOrder(orderId);
-  const { mutate: print, isPending } = useOrderMessagePrint(orderId);
-  const { mutate: reserve } = useReserve(orderId);
+  const { mutate: print, isPending } = useOrderMessagePrint();
+  const { mutate: reserve } = useReserve();
 
   return (
     <React.Fragment>
@@ -66,7 +66,7 @@ function Coupon() {
           <Button
             isLoading={isPending}
             onClick={() => {
-              print();
+              print([order.id]);
             }}
           >
             발주서 프린트
@@ -182,14 +182,20 @@ function Coupon() {
               <div key="quick" className="mt-2 flex gap-3">
                 <Button
                   onClick={() => {
-                    reserve("doobalhero");
+                    reserve({
+                      partner: "doobalhero",
+                      orderIds: [order.id],
+                    });
                   }}
                 >
                   두발히어로(퀵) 수동 배차
                 </Button>
                 <Button
                   onClick={() => {
-                    reserve("kakao-mobility");
+                    reserve({
+                      partner: "kakao-mobility",
+                      orderIds: [order.id],
+                    });
                   }}
                 >
                   카카오모빌리티(퀵) 수동 배차
@@ -200,7 +206,7 @@ function Coupon() {
               <div key="delivery" className="mt-2 flex gap-3">
                 <Button
                   onClick={() => {
-                    reserve("cj");
+                    reserve({ partner: "cj", orderIds: [order.id] });
                   }}
                 >
                   CJ 대한통운 택배 수동 배차

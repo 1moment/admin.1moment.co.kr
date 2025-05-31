@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as Sentry from "@sentry/react";
 import { format } from "date-fns/format";
-import { subMonths } from "date-fns/subMonths";
 import { generatePagination } from "@/utils/generate-pagination-array.ts";
 
 import { useSearchParams } from "react-router";
@@ -29,40 +28,50 @@ import { Button } from "@/components/ui/button.tsx";
 import { Select } from "@/components/ui/select.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
-import { useOrders } from "@/hooks/use-orders.tsx";
+import {
+  useOrderMessagePrint,
+  useOrders,
+  useReserve,
+} from "@/hooks/use-orders.tsx";
 import {
   OrderStatusBadge,
   DeliveryStatusBadge,
 } from "@/components/ui/badge.tsx";
+import { Checkbox } from "@/components/ui/checkbox.tsx";
+import {
+  Dropdown,
+  DropdownButton,
+  DropdownItem,
+  DropdownMenu,
+} from "@/components/ui/dropdown.tsx";
+import { ChevronDownIcon } from "lucide-react";
 
-const currentDate = new Date();
 function Orders() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page") || 1);
   const status = searchParams.get("status") as string;
-  const startDate =
-    searchParams.get("startDate") ||
-    format(subMonths(currentDate, 3), "yyyy-MM-dd");
-  const endDate =
-    searchParams.get("endDate") || format(currentDate, "yyyy-MM-dd");
   const deliveryMethodType = searchParams.get("deliveryMethodType");
   const deliveryStatus = searchParams.get("deliveryStatus") as string;
+  const deliveryDate = searchParams.get("deliveryDate");
   const queryType = searchParams.get("queryType") as string;
   const query = searchParams.get("query") as string;
+
+  const [checkedOrders, setCheckedOrders] = React.useState(new Set<number>());
 
   const {
     data: { items, meta },
   } = useOrders({
     currentPage,
     status,
-    startDate,
-    endDate,
     deliveryMethodType,
     deliveryStatus,
+    deliveryDate,
     queryType,
     query,
   });
+  const { mutate: print, isPending } = useOrderMessagePrint();
+  const { mutate: reserve } = useReserve();
 
   return (
     <div className="mt-8 py-4 bg-white border border-gray-100 rounded-xl">
@@ -120,11 +129,13 @@ function Orders() {
 
           <div className="flex items-center justify-center gap-3">
             <Field className="shrink-0 w-16">
-              <Label>검색기간</Label>
+              <Label>배송일</Label>
             </Field>
-            <Input type="date" name="startDate" defaultValue={startDate} />
-            <p>~</p>
-            <Input type="date" name="endDate" defaultValue={endDate} />
+            <Input
+              type="date"
+              name="deliveryDate"
+              defaultValue={deliveryDate}
+            />
           </div>
 
           <div className="flex items-center justify-center gap-6">
@@ -202,14 +213,70 @@ function Orders() {
       </form>
 
       <hr className="my-5 border-gray-100" />
+      {checkedOrders.size > 0 && (
+        <div className="mb-3 px-4 flex items-center justify-end gap-6">
+          <p className="text-[14px] text-zinc-700">
+            {checkedOrders.size}개 선택됨
+          </p>
+
+          <Dropdown>
+            <DropdownButton className="flex items-center" outline>
+              액션
+              <ChevronDownIcon width={16} height={16} />
+            </DropdownButton>
+            <DropdownMenu>
+              <DropdownItem
+                onClick={() => {
+                  print([...checkedOrders]);
+                }}
+              >
+                발주서 프린트
+              </DropdownItem>
+              <DropdownItem
+                onClick={() => {
+                  reserve({
+                    partner: "doobalhero",
+                    orderIds: [...checkedOrders],
+                  });
+                }}
+              >
+                [퀵]두발히어로 배차
+              </DropdownItem>
+              <DropdownItem
+                onClick={() => {
+                  reserve({
+                    partner: "kakao-mobility",
+                    orderIds: [...checkedOrders],
+                  });
+                }}
+              >
+                [퀵]카카오모빌리티 배차
+              </DropdownItem>
+              <DropdownItem
+                onClick={() => {
+                  reserve({
+                    partner: "cj",
+                    orderIds: [...checkedOrders],
+                  });
+                }}
+              >
+                CJ 대한통운 배차
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </div>
+      )}
 
       <Table className="px-4 overflow-x-auto">
         <TableHead>
           <TableRow>
+            <TableHeader />
             <TableHeader>주문번호</TableHeader>
             <TableHeader>주문상태</TableHeader>
             <TableHeader>구매자</TableHeader>
             <TableHeader>보내는사람</TableHeader>
+            <TableHeader>메시지카드</TableHeader>
+            <TableHeader>배송일</TableHeader>
             <TableHeader>배송방식</TableHeader>
             <TableHeader>배송상태</TableHeader>
             <TableHeader>배송지</TableHeader>
@@ -219,6 +286,22 @@ function Orders() {
         <TableBody>
           {items.map((order) => (
             <TableRow key={order.id}>
+              <TableCell>
+                <Checkbox
+                  checked={checkedOrders.has(order.id)}
+                  onChange={(checked) => {
+                    setCheckedOrders((prev) => {
+                      const newSet = new Set(prev);
+                      if (checked) {
+                        newSet.add(order.id);
+                      } else {
+                        newSet.delete(order.id);
+                      }
+                      return newSet;
+                    });
+                  }}
+                />
+              </TableCell>
               <TableCell>
                 <Link className="underline" to={`/orders/${order.id}`}>
                   {order.id}
@@ -251,6 +334,21 @@ function Orders() {
                     <p>{order.senderPhoneNumber}</p>
                   </React.Fragment>
                 )}
+              </TableCell>
+              <TableCell>
+                {order.messageCardText && (
+                  <Link
+                    color="zinc"
+                    to={`https://www.1moment.co.kr/message-card?secret=f1d80654-3f7e-49e0-a43e-8678dbb47220&order_id=${order.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    메세지 카드 문구 프린트
+                  </Link>
+                )}
+              </TableCell>
+              <TableCell className="tabular-nums">
+                {format(order.deliveryDate, "yyyy-MM-dd")}
               </TableCell>
               <TableCell>{order.deliveryMethod?.title}</TableCell>
               <TableCell>
