@@ -68,11 +68,15 @@ export function useOrder(orderId: number) {
   });
 }
 
-export function useOrderMessagePrint(orderId: number) {
+export function useOrderMessagePrint() {
   return useMutation({
-    async mutationFn() {
-      const response = await apiClient(`/admin/orders/${orderId}/printer`, {
+    async mutationFn(orderIds: number[]) {
+      const response = await apiClient("/admin/orders/printer", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderIds,
+        }),
       });
       const result = await response.json();
       return result;
@@ -80,16 +84,19 @@ export function useOrderMessagePrint(orderId: number) {
   });
 }
 
-export function useReserve(orderId: number) {
+export function useReserve() {
   return useMutation({
-    async mutationFn(partner: string) {
+    async mutationFn({
+      partner,
+      orderIds,
+    }: { partner: string; orderIds: number[] }) {
       const response = await apiClient(
         `/admin/reserve/${partner}?secret=f1d80654-3f7e-49e0-a43e-8678dbb47220`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            orderIds: [orderId],
+            orderIds,
           }),
         },
       );
