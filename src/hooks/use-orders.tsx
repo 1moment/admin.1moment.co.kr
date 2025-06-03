@@ -68,6 +68,20 @@ export function useOrder(orderId: number) {
   });
 }
 
+export function useOrderUpdateMutation(orderId: number) {
+  return useMutation<any, Error>({
+    async mutationFn(data) {
+      const response = await apiClient(`/admin/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      return result;
+    }
+  })
+}
+
 export function useOrderMessagePrint() {
   return useMutation({
     async mutationFn(orderIds: number[]) {
