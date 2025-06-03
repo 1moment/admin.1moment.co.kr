@@ -17,19 +17,41 @@ import { Link } from "@/components/ui/link.tsx";
 import {
   useOrder,
   useOrderMessagePrint,
+  useOrderUpdateMutation,
   useReserve,
 } from "@/hooks/use-orders.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
+import { Badge, DeliveryStatusBadge } from "@/components/ui/badge.tsx";
 import { useAdminUsers } from "@/hooks/use-admin-users.tsx";
+import {
+  Dialog,
+  DialogTitle,
+  DialogBody,
+  DialogActions,
+} from "@/components/ui/dialog.tsx";
+import { Field, Label } from "@/components/ui/fieldset.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import {
+  Listbox,
+  ListboxLabel,
+  ListboxOption,
+} from "@/components/ui/listbox.tsx";
+import { Checkbox } from "@/components/ui/checkbox.tsx";
+import {Textarea} from "@/components/ui/textarea.tsx";
 
-function Coupon() {
+function Order() {
   const params = useParams<{ "order-id": string }>();
 
   const orderId = Number(params["order-id"]);
   const { data: adminUsers } = useAdminUsers();
-  const { data: order } = useOrder(orderId);
+  const { data: order, refetch } = useOrder(orderId);
+  const { mutate: updateOrder, isPending: isOrderUpdating } =
+    useOrderUpdateMutation(order.id);
   const { mutate: print, isPending } = useOrderMessagePrint();
   const { mutate: reserve } = useReserve();
+
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [isEditingDeliveryStatus, setIsEditingDeliveryStatus] =
+    React.useState(false);
 
   return (
     <React.Fragment>
@@ -165,7 +187,17 @@ function Coupon() {
       </div>
 
       <div className="mt-10 p-4 bg-white sm:rounded-xl">
-        <Subheading>배송정보</Subheading>
+        <div className="flex justify-between items-start">
+          <Subheading>배송정보</Subheading>
+          <div className="flex gap-3">
+            <Button onClick={() => setIsEditingDeliveryStatus(true)}>
+              배송상태 변경
+            </Button>
+            {order.deliveryStatus === "PENDING" && (
+              <Button onClick={() => setIsEditing(true)}>수정</Button>
+            )}
+          </div>
+        </div>
         <DescriptionList className="mt-4">
           <DescriptionTerm>보내는 사람</DescriptionTerm>
           <DescriptionDetails>
@@ -177,42 +209,46 @@ function Coupon() {
 
           <DescriptionTerm>배송상태</DescriptionTerm>
           <DescriptionDetails>
-            <Badge color="yellow">{order.deliveryStatus}</Badge>
-            {order.deliveryMethod?.type === "QUICK" && (
-              <div key="quick" className="mt-2 flex gap-3">
-                <Button
-                  onClick={() => {
-                    reserve({
-                      partner: "doobalhero",
-                      orderIds: [order.id],
-                    });
-                  }}
-                >
-                  두발히어로(퀵) 수동 배차
-                </Button>
-                <Button
-                  onClick={() => {
-                    reserve({
-                      partner: "kakao-mobility",
-                      orderIds: [order.id],
-                    });
-                  }}
-                >
-                  카카오모빌리티(퀵) 수동 배차
-                </Button>
-              </div>
-            )}
-            {order.deliveryMethod?.type === "DELIVERY" && (
-              <div key="delivery" className="mt-2 flex gap-3">
-                <Button
-                  onClick={() => {
-                    reserve({ partner: "cj", orderIds: [order.id] });
-                  }}
-                >
-                  CJ 대한통운 택배 수동 배차
-                </Button>
-                <Button>우체국 택배 수동 배차</Button>
-              </div>
+            <DeliveryStatusBadge deliveryStatus={order.deliveryStatus} />
+            {order.deliveryStatus === "PENDING" && (
+              <React.Fragment>
+                {order.deliveryMethod?.type === "QUICK" && (
+                  <div key="quick" className="mt-2 flex gap-3">
+                    <Button
+                      onClick={() => {
+                        reserve({
+                          partner: "doobalhero",
+                          orderIds: [order.id],
+                        });
+                      }}
+                    >
+                      두발히어로(퀵) 수동 배차
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        reserve({
+                          partner: "kakao-mobility",
+                          orderIds: [order.id],
+                        });
+                      }}
+                    >
+                      카카오모빌리티(퀵) 수동 배차
+                    </Button>
+                  </div>
+                )}
+                {order.deliveryMethod?.type === "DELIVERY" && (
+                  <div key="delivery" className="mt-2 flex gap-3">
+                    <Button
+                      onClick={() => {
+                        reserve({ partner: "cj", orderIds: [order.id] });
+                      }}
+                    >
+                      CJ 대한통운 택배 수동 배차
+                    </Button>
+                    <Button>우체국 택배 수동 배차</Button>
+                  </div>
+                )}
+              </React.Fragment>
             )}
           </DescriptionDetails>
 
@@ -315,11 +351,165 @@ function Coupon() {
           </DescriptionDetails>
         </DescriptionList>
       </div>
+
+      <Dialog open={isEditing} onClose={setIsEditing}>
+        <DialogTitle>배송 정보 수정</DialogTitle>
+        <DialogBody>
+          <form
+            id="order-shipment-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              const data = Object.fromEntries(formData.entries());
+
+              updateOrder({
+                ...data,
+                isAnonymous: data.isAnonymous === 'on',
+              }, {
+                onSuccess() {
+                  refetch();
+                  alert("배송정보을 수정하였습니다.");
+                  setIsEditing(false);
+                },
+              });
+            }}
+          >
+            <div className="flex gap-3">
+              <Field>
+                <Label>보내는 사람</Label>
+                <Input name="senderName" defaultValue={order.senderName} />
+              </Field>
+              <Field>
+                <Label>연락처</Label>
+                <Input name="senderPhoneNumber" defaultValue={order.senderPhoneNumber} />
+              </Field>
+              <Field>
+                <Label>익명여부</Label>
+                <div className="mt-5 flex items-center justify-center">
+                  <Checkbox name="isAnonymous" defaultChecked={order.isAnonymous} />
+                </div>
+              </Field>
+            </div>
+
+            <div className="mt-5">
+              <Field>
+                <Label>배송희망일</Label>
+                <Input name="deliveryDate" type="date" defaultValue={format(new Date(order.deliveryDate), 'yyyy-MM-dd')}/>
+              </Field>
+            </div>
+
+            <div className="mt-5 flex gap-3">
+              <Field>
+                <Label>받는 사람</Label>
+                <Input name="receiverName" defaultValue={order.receiverName} />
+              </Field>
+
+              <Field>
+                <Label>연락처</Label>
+                <Input name="receiverPhoneNumber" defaultValue={order.receiverPhoneNumber} />
+              </Field>
+            </div>
+
+            <div className="mt-5">
+              <Field>
+                <Label>메시지카드 텍스트</Label>
+                <Textarea name="messageCardText" defaultValue={order.messageCardText} />
+              </Field>
+            </div>
+          </form>
+        </DialogBody>
+        <DialogActions>
+          <Button plain disabled={isOrderUpdating} onClick={() => setIsEditing(false)}>
+            닫기
+          </Button>
+          <Button type="submit" isLoading={isOrderUpdating} form="order-shipment-form">
+            저장
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={isEditingDeliveryStatus}
+        onClose={setIsEditingDeliveryStatus}
+      >
+        <DialogTitle>배송 상태 변경</DialogTitle>
+        <DialogBody>
+          <form
+            id="order-delivery-status-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              updateOrder(Object.fromEntries(formData.entries()) as any, {
+                onSuccess() {
+                  refetch();
+                  alert("배송 상태가 변경되었습니다.");
+                  setIsEditingDeliveryStatus(false);
+                },
+              });
+            }}
+          >
+            <Field>
+              <Label>배송상태</Label>
+              <Listbox
+                name="deliveryStatus"
+                defaultValue={order.deliveryStatus}
+              >
+                <ListboxOption value="PENDING">
+                  <ListboxLabel>
+                    <DeliveryStatusBadge deliveryStatus="PENDING" />
+                  </ListboxLabel>
+                </ListboxOption>
+                <ListboxOption value="WAITING">
+                  <ListboxLabel>
+                    <DeliveryStatusBadge deliveryStatus="WAITING" />
+                  </ListboxLabel>
+                </ListboxOption>
+                <ListboxOption value="DELIVERING">
+                  <ListboxLabel>
+                    <DeliveryStatusBadge deliveryStatus="DELIVERING" />
+                  </ListboxLabel>
+                </ListboxOption>
+                <ListboxOption value="DELIVERED">
+                  <ListboxLabel>
+                    <DeliveryStatusBadge deliveryStatus="DELIVERED" />
+                  </ListboxLabel>
+                </ListboxOption>
+                <ListboxOption value="CANCELED">
+                  <ListboxLabel>
+                    <DeliveryStatusBadge deliveryStatus="CANCELED" />
+                  </ListboxLabel>
+                </ListboxOption>
+                <ListboxOption value="FAILED">
+                  <ListboxLabel>
+                    <DeliveryStatusBadge deliveryStatus="FAILED" />
+                  </ListboxLabel>
+                </ListboxOption>
+              </Listbox>
+            </Field>
+          </form>
+        </DialogBody>
+        <DialogActions>
+          <Button
+            plain
+            disabled={isOrderUpdating}
+            onClick={() => setIsEditingDeliveryStatus(false)}
+          >
+            닫기
+          </Button>
+          <Button
+            type="submit"
+            isLoading={isOrderUpdating}
+            form="order-delivery-status-form"
+          >
+            저장
+          </Button>
+        </DialogActions>
+      </Dialog>
     </React.Fragment>
   );
 }
 
-export default function CouponPage() {
+export default function Page() {
   return (
     <React.Fragment>
       <Sentry.ErrorBoundary
@@ -333,7 +523,7 @@ export default function CouponPage() {
             <div className="p-8 text-center">주문정보 불러오는 중...</div>
           }
         >
-          <Coupon />
+          <Order />
         </React.Suspense>
       </Sentry.ErrorBoundary>
     </React.Fragment>
