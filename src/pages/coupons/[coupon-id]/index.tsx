@@ -1,29 +1,29 @@
-import * as React from "react";
-import * as Sentry from "@sentry/react";
 import { format } from "date-fns/format";
 
-import { useNavigate, useParams } from "react-router";
+import * as React from "react";
+import * as Sentry from "@sentry/react";
+import { useParams } from "react-router";
 
-import { Heading, Subheading } from "@/components/ui/heading.tsx";
-import { InputGroup, Input } from "@/components/ui/input.tsx";
-import { FieldGroup, Field, Label } from "@/components/ui/fieldset";
-import { Text } from "@/components/ui/text";
-
-import Users from "@/components/coupons/users";
-import { Textarea } from "@/components/ui/textarea.tsx";
-import { Switch } from "@/components/ui/switch.tsx";
-import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeftIcon } from "lucide-react";
-import { useCoupon } from "@/hooks/use-coupons.tsx";
-import CouponForm from "@/components/coupons/form.tsx";
+import { Heading, Subheading } from "@/components/ui/heading.tsx";
+import Users from "@/components/coupons/users";
+import { Button } from "@/components/ui/button";
+import {
+  DescriptionDetails,
+  DescriptionList,
+  DescriptionTerm,
+} from "@/components/ui/description-list";
+import CouponFormModal from "@/components/coupons/form-modal.tsx";
+
+import { useCoupon, useCouponUpdateMutation } from "@/hooks/use-coupons";
 
 function Coupon() {
-  const navigate = useNavigate();
   const params = useParams<{ "coupon-id": string }>();
-  const [isEdit, setIsEdit] = React.useState(false);
+  const [isEdit, setIsEdit] = React.useState(null);
 
   const couponId = Number(params["coupon-id"]);
-  const { data: coupon } = useCoupon(couponId);
+  const { data: coupon, refetch } = useCoupon(couponId);
+  const { isPending: isUpdating, mutate: update } = useCouponUpdateMutation();
 
   return (
     <React.Fragment>
@@ -33,15 +33,71 @@ function Coupon() {
         </Button>
         <Heading>{coupon.id}</Heading>
       </div>
-      <CouponForm
-        coupon={coupon}
+      <div className="mt-10 grid grid-cols-5 items-start gap-x-3">
+        <Users couponId={params["coupon-id"]} />
+        <div className="col-span-2 p-4 bg-white rounded-xl shadow">
+          <div className="flex justify-between items-start">
+            <Heading>기본정보</Heading>
+            <Button onClick={() => setIsEdit(coupon)}>수정</Button>
+          </div>
+
+          <DescriptionList className="mt-4">
+            <DescriptionTerm>코드</DescriptionTerm>
+            <DescriptionDetails>{coupon.code}</DescriptionDetails>
+
+            <DescriptionTerm>쿠폰명</DescriptionTerm>
+            <DescriptionDetails>{coupon.title}</DescriptionDetails>
+
+            <DescriptionTerm>노트</DescriptionTerm>
+            <DescriptionDetails className="whitespace-pre-wrap">
+              {coupon.note}
+            </DescriptionDetails>
+
+            <DescriptionTerm>할인금액</DescriptionTerm>
+            <DescriptionDetails>
+              {Number(coupon.discountAmount).toLocaleString("ko-KR")}원
+            </DescriptionDetails>
+
+            <DescriptionTerm>만료여부</DescriptionTerm>
+            <DescriptionDetails>
+              {coupon.isExpired ? "만료" : "사용가능"}
+            </DescriptionDetails>
+
+            <DescriptionTerm>만료일</DescriptionTerm>
+            <DescriptionDetails>
+              {format(new Date(coupon.expirationDate), "yyyy-MM-dd HH:mm:ss")}
+            </DescriptionDetails>
+
+            <DescriptionTerm>다운로드 가능여부</DescriptionTerm>
+            <DescriptionDetails>
+              {coupon.isDownloadable ? "가능" : "숨김"}
+            </DescriptionDetails>
+          </DescriptionList>
+        </div>
+      </div>
+
+      <CouponFormModal
+        open={!!isEdit}
+        onClose={() => setIsEdit(null)}
+        title="쿠폰 정보 수정"
+        coupon={isEdit}
+        isPending={isUpdating}
         onSubmit={(data) => {
-          console.log("dfd", data);
+          update(
+            { couponId, ...data },
+            {
+              onSuccess() {
+                refetch();
+                setIsEdit(null);
+                alert("수정이 완료되었습니다.");
+              },
+              onError(error) {
+                alert(error.message);
+              },
+            },
+          );
         }}
       />
-      <React.Suspense fallback={<div>상품 목록 가져오는 중...</div>}>
-        <Users couponId={params["coupon-id"]} />
-      </React.Suspense>
     </React.Fragment>
   );
 }
