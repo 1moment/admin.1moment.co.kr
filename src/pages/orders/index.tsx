@@ -207,9 +207,15 @@ function Orders() {
             />
           </div>
         </div>
+        <div className="flex items-center gap-5">
+        <Link
+            className="text-blue-400"
+            to="/orders"
+        >초기화</Link>
         <Button type="submit" className="shrink-0" color="zinc">
           조회
         </Button>
+        </div>
       </form>
 
       <hr className="my-5 border-gray-100" />

@@ -16,25 +16,21 @@ import {
 import { Switch } from "@/components/ui/switch.tsx";
 import { format } from "date-fns/format";
 import { Link } from "@/components/ui/link.tsx";
+import {useCoupon, useUserCoupons} from "@/hooks/use-coupons.tsx";
 
 function _Users({ couponId }) {
   const [currentPage, setCurrentPage] = React.useState(1);
+  const { data: coupon } = useCoupon(couponId);
   const {
     data: { items, meta },
-  } = useSuspenseQuery<{ items: userCoupon[] }>({
-    queryKey: ["coupons", couponId, "users"],
-    queryFn() {
-      const query = new URLSearchParams();
-      query.set("size", "10");
-      query.set("page", `${currentPage}`);
-      return apiClient(
-        `/admin/coupons/${couponId}/users?${query.toString()}`,
-      ).then((res) => res.json());
-    },
-  });
+  } = useUserCoupons({ currentPage, couponId });
 
   return (
     <React.Fragment>
+      <div className="flex justify-between">
+        <Heading>쿠폰 발급 현황</Heading>
+        <Button disabled={coupon.isExpired}>발급</Button>
+      </div>
       <Table className="mt-8">
         <TableHead>
           <TableRow>
@@ -51,7 +47,10 @@ function _Users({ couponId }) {
               <TableRow key={`user-${userCoupon.id}`}>
                 <TableCell>{userCoupon.id}</TableCell>
                 <TableCell>
-                  <Link className="underline" to={`/users/${userCoupon.user.id}`}>
+                  <Link
+                    className="underline"
+                    to={`/users/${userCoupon.user.id}`}
+                  >
                     {userCoupon.user.id}
                   </Link>
                 </TableCell>
@@ -75,7 +74,9 @@ function _Users({ couponId }) {
         ) : (
           <TableBody>
             <TableRow>
-              <TableCell className="h-20">발급 이력이 없습니다</TableCell>
+              <TableCell className="h-20 text-center" colSpan={5}>
+                발급 이력이 없습니다
+              </TableCell>
             </TableRow>
           </TableBody>
         )}
@@ -150,9 +151,15 @@ function _Users({ couponId }) {
 
 export default function Users({ couponId }) {
   return (
-    <section className="mt-8 p-4 border border-gray-100 rounded shadow">
-      <Heading>쿠폰 발급 현황</Heading>
-      <React.Suspense fallback={<p>쿠폰을 불러오고있습니다</p>}>
+    <section className="col-span-3 p-4 bg-white rounded-xl shadow">
+      <React.Suspense
+        fallback={
+          <React.Fragment>
+            <Heading>쿠폰 발급 현황</Heading>
+            <p>쿠폰 발급 현황을 불러오고있습니다</p>
+          </React.Fragment>
+        }
+      >
         <_Users couponId={couponId} />
       </React.Suspense>
     </section>

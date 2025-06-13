@@ -163,6 +163,16 @@ type Payment = {
   updatedAt: string;
 };
 
+interface DeliveryMethod {
+  id: number;
+  type: string;
+  title: string;
+  addedPrice: number;
+  isDefault: boolean;
+  availableDates: string[];
+  discountedPrice: number;
+}
+
 type PromotionCategory = {
   id: number;
   title: string;

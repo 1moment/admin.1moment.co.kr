@@ -41,7 +41,7 @@ import {
   LayoutTemplateIcon,
   HomeIcon,
   LayersIcon,
-  PackagePlusIcon,
+  PackagePlusIcon, PackageCheckIcon, TruckIcon, ClipboardCheckIcon, BikeIcon,
 } from "lucide-react";
 
 import UserContext from "./contexts/user-context.ts";
@@ -94,13 +94,26 @@ export default function Layout({ children }) {
               </SidebarItem>
 
               <SidebarItem to="/worksheet">
-                <ReceiptTextIcon />
+                <ClipboardCheckIcon />
                 <SidebarLabel>작업계획서</SidebarLabel>
               </SidebarItem>
 
               <SidebarItem to="/shipping-management">
-                <ReceiptTextIcon />
+                <PackageCheckIcon />
                 <SidebarLabel>출고</SidebarLabel>
+              </SidebarItem>
+            </SidebarSection>
+
+            <SidebarSection>
+              <SidebarHeading>배송</SidebarHeading>
+              <SidebarItem to="/delivery-methods">
+                <TruckIcon />
+                <SidebarLabel>배송방법</SidebarLabel>
+              </SidebarItem>
+
+              <SidebarItem to="/quick-tasks">
+                <BikeIcon />
+                <SidebarLabel>퀵 배차 현황</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
 

@@ -13,6 +13,8 @@ const BannersPage = React.lazy(() => import("./pages/banners"));
 const BannerPage = React.lazy(() => import("./pages/banners/[banner-id]"));
 const BannerCreatePage = React.lazy(() => import("./pages/banners/create"));
 
+const DeliveryMethodsPage = React.lazy(() => import('./pages/delivery-methods'));
+
 const CouponsPage = React.lazy(() => import("./pages/coupons"));
 const CouponPage = React.lazy(() => import("./pages/coupons/[coupon-id]"));
 
@@ -87,6 +89,8 @@ const PromotionSectionPage = React.lazy(
   () => import("./pages/promotion-sections/[promotion-section-id]"),
 );
 
+const QuickTasksPage = React.lazy(() => import("./pages/quick-tasks"));
+
 const ReviewsPage = React.lazy(() => import("./pages/reviews"));
 
 const ShippingManagementPage = React.lazy(() => import('./pages/shipping-management'));
@@ -127,6 +131,10 @@ export default function AppRoutes() {
           <Route path="coupons">
             <Route path="" element={<CouponsPage />} />
             <Route path=":coupon-id" element={<CouponPage />} />
+          </Route>
+
+          <Route path="delivery-methods">
+            <Route path="" element={<DeliveryMethodsPage />} />
           </Route>
 
           <Route path="/login" element={<LoginPage />} />
@@ -202,6 +210,10 @@ export default function AppRoutes() {
           <Route path="users">
             <Route path="" element={<UsersPage />} />
             <Route path=":user-id" element={<UserPage />} />
+          </Route>
+
+          <Route path="quick-tasks">
+            <Route path="" element={<QuickTasksPage />} />
           </Route>
 
           <Route path="reviews">
