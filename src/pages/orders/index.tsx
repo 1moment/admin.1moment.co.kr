@@ -36,6 +36,7 @@ import {
 import {
   OrderStatusBadge,
   DeliveryStatusBadge,
+  DeliveryReceivingTimeBadge,
 } from "@/components/ui/badge.tsx";
 import { Checkbox } from "@/components/ui/checkbox.tsx";
 import {
@@ -208,13 +209,12 @@ function Orders() {
           </div>
         </div>
         <div className="flex items-center gap-5">
-        <Link
-            className="text-blue-400"
-            to="/orders"
-        >초기화</Link>
-        <Button type="submit" className="shrink-0" color="zinc">
-          조회
-        </Button>
+          <Link className="text-blue-400" to="/orders">
+            초기화
+          </Link>
+          <Button type="submit" className="shrink-0" color="zinc">
+            조회
+          </Button>
         </div>
       </form>
 
@@ -280,10 +280,12 @@ function Orders() {
             <TableHeader>주문번호</TableHeader>
             <TableHeader>주문상태</TableHeader>
             <TableHeader>구매자</TableHeader>
+            <TableHeader>구매항목</TableHeader>
             <TableHeader>보내는사람</TableHeader>
             <TableHeader>메시지카드</TableHeader>
             <TableHeader>배송일</TableHeader>
-            <TableHeader>배송방식</TableHeader>
+            <TableHeader className="text-center">배송방식</TableHeader>
+            <TableHeader className="text-center">시간대</TableHeader>
             <TableHeader>배송상태</TableHeader>
             <TableHeader>배송지</TableHeader>
             <TableHeader>주문일자</TableHeader>
@@ -332,6 +334,15 @@ function Orders() {
                 )}
               </TableCell>
               <TableCell>
+                <ul>
+                  {order.items.map((item) => (
+                    <li key={`order-item-${item.id}`}>
+                      {item.productItem.title}&nbsp;{item.quantity}개
+                    </li>
+                  ))}
+                </ul>
+              </TableCell>
+              <TableCell>
                 {order.isAnonymous ? (
                   <p>익명</p>
                 ) : (
@@ -357,6 +368,11 @@ function Orders() {
                 {format(order.deliveryDate, "yyyy-MM-dd")}
               </TableCell>
               <TableCell>{order.deliveryMethod?.title}</TableCell>
+              <TableCell className="text-center">
+                <DeliveryReceivingTimeBadge
+                  receivingTime={order.receivingTime}
+                />
+              </TableCell>
               <TableCell>
                 <DeliveryStatusBadge deliveryStatus={order.deliveryStatus} />
               </TableCell>
