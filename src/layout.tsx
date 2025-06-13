@@ -105,6 +105,11 @@ export default function Layout({ children }) {
             </SidebarSection>
 
             <SidebarSection>
+              <SidebarHeading>배송</SidebarHeading>
+              <SidebarItem to="/delivery-methods">
+                <TruckIcon />
+                <SidebarLabel>배송방법</SidebarLabel>
+              </SidebarItem>
 
               <SidebarItem to="/quick-tasks">
                 <BikeIcon />

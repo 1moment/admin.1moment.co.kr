@@ -33,7 +33,7 @@ import {
   useQuickTaskDeleteMutation,
   useQuickTasks,
 } from "@/hooks/use-quick-tasks.tsx";
-function ReviewsPage() {
+function QuickTasks() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page") || 1);
@@ -218,7 +218,7 @@ export default function Page() {
           fallback={<div className="p-8 text-center">불러오는 중...</div>}
         >
           <Heading>리뷰목록</Heading>
-          <ReviewsPage />
+          <QuickTasks />
         </React.Suspense>
       </Sentry.ErrorBoundary>
     </React.Fragment>
