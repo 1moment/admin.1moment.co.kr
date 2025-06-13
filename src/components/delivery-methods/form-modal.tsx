@@ -40,9 +40,9 @@ export default function DeliveryMethodFormModal({
               deliveryMethodId: formData.get("deliveryMethodId") as string,
               type: formData.get("type") as string,
               title: formData.get("title") as string,
-              addedPrice: Number(formData.get("discountAmount")),
-              discountedPrice: Number(formData.get("productId")),
-              isDefault: formData.get("isExpired") === "on",
+              addedPrice: Number(formData.get("addedPrice")),
+              discountedPrice: Number(formData.get("discountedPrice")),
+              isDefault: formData.get("isDefault") === "on",
               availableDates: (
                 formData.getAll("availableDates[]") as string[]
               ).map((date) => new Date(date)),

@@ -38,7 +38,6 @@ function DeliveryMethods() {
 
   return (
     <div className="mt-10 py-4 bg-white sm:rounded-xl">
-      
 
       <hr className="mt-4 border-zinc-500/10" />
 
