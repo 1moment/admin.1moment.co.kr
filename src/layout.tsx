@@ -105,6 +105,14 @@ export default function Layout({ children }) {
             </SidebarSection>
 
             <SidebarSection>
+
+              <SidebarItem to="/quick-tasks">
+                <BikeIcon />
+                <SidebarLabel>퀵 배차 현황</SidebarLabel>
+              </SidebarItem>
+            </SidebarSection>
+
+            <SidebarSection>
               <SidebarHeading>홈페이지</SidebarHeading>
               <SidebarItem to="/banners">
                 <PanelTopIcon />

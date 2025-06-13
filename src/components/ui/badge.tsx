@@ -131,6 +131,15 @@ export function DeliveryStatusBadge({ deliveryStatus }) {
   if (deliveryStatus === "FAILED") {
     return <Badge color="red">배송실패</Badge>;
   }
+
+  // 아래부터 퀵에서 존재하는 것
+  if (deliveryStatus === 'REQUESTED') {
+    return <Badge color="orange">요청됨</Badge>;
+  }
+
+  if (deliveryStatus === 'REQUEST_FAILED') {
+    return <Badge color="red">요청실패</Badge>;
+  }
 }
 
 export function DeliveryReceivingTimeBadge({ receivingTime }) {
