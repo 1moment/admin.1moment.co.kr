@@ -6,6 +6,7 @@ export function useReviews(options) {
     page: options.currentPage || 1,
     rating: options.rating || null,
     isHidden: options.isHidden || null,
+    userId: options.userId || null,
   };
 
   return useSuspenseQuery<{ items: Review[] }>({
@@ -16,6 +17,9 @@ export function useReviews(options) {
       if (data.rating) params.set("rating", data.rating);
       if (typeof data.isHidden === "string")
         params.set("isHidden", data.isHidden);
+      if (data.userId) {
+        params.set("userId", data.userId);
+      }
       const response = await apiClient(`/admin/reviews?${params.toString()}`);
       const result = await response.json();
       return result;
