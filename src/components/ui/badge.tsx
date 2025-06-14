@@ -131,31 +131,55 @@ export function DeliveryStatusBadge({ deliveryStatus }) {
   if (deliveryStatus === "FAILED") {
     return <Badge color="red">배송실패</Badge>;
   }
-
-  // 아래부터 퀵에서 존재하는 것
-  if (deliveryStatus === 'REQUESTED') {
-    return <Badge color="orange">요청됨</Badge>;
-  }
-
-  if (deliveryStatus === 'REQUEST_FAILED') {
-    return <Badge color="red">요청실패</Badge>;
-  }
 }
 
 export function DeliveryReceivingTimeBadge({ receivingTime }) {
-  if (receivingTime === 'QUICK') {
-    return <Badge color="orange">QUICK</Badge>
+  if (receivingTime === "QUICK") {
+    return <Badge color="orange">QUICK</Badge>;
   }
 
-  if (receivingTime === 'MORNING') {
-    return <Badge color="green">MORNING</Badge>
+  if (receivingTime === "MORNING") {
+    return <Badge color="green">MORNING</Badge>;
   }
 
-  if (receivingTime === 'AFTERNOON') {
-    return <Badge color="lime">AFTERNOON</Badge>
+  if (receivingTime === "AFTERNOON") {
+    return <Badge color="lime">AFTERNOON</Badge>;
   }
 
-  if (receivingTime === 'EVENING') {
-    return <Badge color="yellow">EVENING</Badge>
+  if (receivingTime === "EVENING") {
+    return <Badge color="yellow">EVENING</Badge>;
+  }
+}
+
+export function QuickTaskBadge({ deliveryStatus }) {
+  if (deliveryStatus === "PENDING") {
+    return <Badge color="sky">출고대기</Badge>;
+  }
+
+  if (deliveryStatus === "RECEIPTED") {
+    return <Badge color="blue">배송대기</Badge>;
+  }
+
+  if (deliveryStatus === "DELIVERING") {
+    return <Badge color="cyan">배송중</Badge>;
+  }
+
+  if (deliveryStatus === "DELIVERED") {
+    return <Badge color="green">배송완료</Badge>;
+  }
+
+  if (deliveryStatus === "CANCELED") {
+    return <Badge color="yellow">배송취소</Badge>;
+  }
+
+  if (deliveryStatus === "REQUESTED") {
+    return <Badge color="blue">요청됨</Badge>;
+  }
+
+  if (deliveryStatus === "ASSIGNED") {
+    return <Badge color="blue">배정됨</Badge>;
+  }
+  if (deliveryStatus === "REQUEST_FAILED") {
+    return <Badge color="red">요청 실패</Badge>;
   }
 }

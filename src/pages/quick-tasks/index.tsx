@@ -13,8 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table.tsx";
 import {
-  DeliveryStatusBadge,
-  DeliveryReceivingTimeBadge,
+  DeliveryReceivingTimeBadge, QuickTaskBadge,
 } from "@/components/ui/badge";
 import { Heading } from "@/components/ui/heading.tsx";
 import {
@@ -37,12 +36,12 @@ function QuickTasks() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page") || 1);
-  const isHidden = searchParams.get("isHidden");
+  const status = searchParams.get("status");
 
   const {
     data: { items, meta },
     refetch,
-  } = useQuickTasks({ currentPage });
+  } = useQuickTasks({ currentPage, status });
 
   const { isPending, mutate: removeQuickTask } = useQuickTaskDeleteMutation();
 
@@ -52,16 +51,22 @@ function QuickTasks() {
         <div className="grow flex flex-col items-start justify-start gap-3">
           <div className="flex items-center justify-center gap-6">
             <Field className="shrink-0 w-16">
-              <Label>숨김여부</Label>
+              <Label>배송상태</Label>
             </Field>
             <Select
-              className="max-w-48"
-              name="isHidden"
-              defaultValue={isHidden}
+                key={`status-${status}`}
+                className="max-w-48"
+                name="status"
+                defaultValue={status || ''}
             >
-              <option value="">전체</option>
-              <option value="true">숨김</option>
-              <option value="false">표시</option>
+              <option value="">선택</option>
+              <option value="PENDING">대기중(PENDING)</option>
+              <option value="RECEIPTED">배송대기(RECEIPTED)</option>
+              <option value="ASSIGNED">배정됨(ASSIGNED)</option>
+              <option value="DELIVERING">배송중(DELIVERING)</option>
+              <option value="REQUESTED">요청됨(REQUESTED)</option>
+              <option value="CANCELED">취소됨(CANCELED)</option>
+              <option value="REQUEST_FAILED">요청실패(REQUEST_FAILED)</option>
             </Select>
           </div>
         </div>
@@ -114,7 +119,7 @@ function QuickTasks() {
                 {quickTask.partner.name}
               </TableCell>
               <TableCell className="text-center">
-                <DeliveryStatusBadge deliveryStatus={quickTask.status} />
+                <QuickTaskBadge deliveryStatus={quickTask.status} />
               </TableCell>
               <TableCell className="text-center">
                 <DeliveryReceivingTimeBadge
@@ -216,7 +221,7 @@ export default function Page() {
         <React.Suspense
           fallback={<div className="p-8 text-center">불러오는 중...</div>}
         >
-          <Heading>리뷰목록</Heading>
+          <Heading>퀵 배송 현황</Heading>
           <QuickTasks />
         </React.Suspense>
       </Sentry.ErrorBoundary>
