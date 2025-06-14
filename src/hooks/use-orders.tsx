@@ -85,7 +85,7 @@ export function useOrderUpdateMutation(orderId: number) {
 export function useOrderMessagePrint() {
   return useMutation({
     async mutationFn(orderIds: number[]) {
-      const response = await apiClient("/admin/orders/printer", {
+      const response = await apiClient("/admin/order/printer?secret=f1d80654-3f7e-49e0-a43e-8678dbb47220", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

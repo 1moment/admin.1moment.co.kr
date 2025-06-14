@@ -44,7 +44,6 @@ function QuickTasks() {
     refetch,
   } = useQuickTasks({ currentPage });
 
-  console.log(items);
   const { isPending, mutate: removeQuickTask } = useQuickTaskDeleteMutation();
 
   return (
