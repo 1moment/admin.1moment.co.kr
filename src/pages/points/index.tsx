@@ -113,7 +113,7 @@ export default function PointsPage() {
   return (
     <React.Fragment>
       <div className="mb-8 flex items-start justify-between">
-        <Heading>상품 카테고리</Heading>
+        <Heading>적립금 내역</Heading>
       </div>
       <React.Suspense
         fallback={

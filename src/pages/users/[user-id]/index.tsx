@@ -10,12 +10,7 @@ import {
   DescriptionList,
   DescriptionTerm,
 } from "@/components/ui/description-list";
-import {
-  FileUserIcon,
-  MailIcon,
-  PhoneIcon,
-  TagIcon,
-} from "lucide-react";
+import { FileUserIcon, MailIcon, PhoneIcon, TagIcon } from "lucide-react";
 import { Link } from "@/components/ui/link.tsx";
 import { useUser } from "@/hooks/use-users.tsx";
 import { useOrders } from "@/hooks/use-orders.tsx";
@@ -45,6 +40,7 @@ import { usePoints } from "@/hooks/use-points.tsx";
 import { Button } from "@/components/ui/button";
 import { useReviews } from "@/hooks/use-reviews.tsx";
 import { Rating } from "@/components/ui/rating.tsx";
+import PointsFormModal from "@/components/points/form-modal.tsx";
 
 export default function Page() {
   const params = useParams<{ "user-id": string }>();
@@ -145,7 +141,7 @@ function User() {
 
           <DescriptionTerm>가입일</DescriptionTerm>
           <DescriptionDetails>
-            {format(new Date(user.createdAt), 'yyyy-MM-dd HH:mm:ss')}
+            {format(new Date(user.createdAt), "yyyy-MM-dd HH:mm:ss")}
           </DescriptionDetails>
 
           <DescriptionTerm>리프레쉬토큰</DescriptionTerm>
@@ -417,14 +413,19 @@ function Points() {
   const params = useParams<{ "user-id": string }>();
   const userId = Number(params["user-id"]);
 
+  const [isCreating, setIsCreating] = React.useState(false);
   const [currentPage, setPage] = React.useState(1);
   const {
     data: { items: points, meta },
+    refetch,
   } = usePoints({ currentPage, userId });
 
   return (
     <div className="p-4 bg-white rounded-xl">
-      <Subheading className="">적립금</Subheading>
+      <div className="flex justify-between">
+        <Subheading className="">적립금</Subheading>
+        <Button onClick={() => setIsCreating(true)}>지급</Button>
+      </div>
       <Table className="mt-6">
         <TableHead>
           <TableRow>
@@ -487,6 +488,16 @@ function Points() {
           다음
         </Button>
       </Pagination>
+      <PointsFormModal
+        title="적립금 지급"
+        open={isCreating}
+        onClose={() => setIsCreating(false)}
+        userId={userId}
+        onSuccess={() => {
+          refetch();
+        }}
+        // onSubmit={}
+      />
     </div>
   );
 }
