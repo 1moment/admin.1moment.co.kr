@@ -74,6 +74,10 @@ function Orders() {
   const { mutate: print, isPending } = useOrderMessagePrint();
   const { mutate: reserve } = useReserve();
 
+  React.useEffect(() => {
+    setCheckedOrders(new Set());
+  }, [currentPage]);
+
   return (
     <div className="mt-8 py-4 bg-white border border-gray-100 rounded-xl">
       <form className="px-4 items-end flex">
@@ -240,30 +244,51 @@ function Orders() {
               </DropdownItem>
               <DropdownItem
                 onClick={() => {
-                  reserve({
-                    partner: "doobalhero",
-                    orderIds: [...checkedOrders],
-                  });
+                  if (confirm(`주문번호 ${[...checkedOrders].join(',')}를 두발히어로 배차 신청합니다`)) {
+                    reserve({
+                      partner: "doobalhero",
+                      orderIds: [...checkedOrders],
+                    }, {
+                      onSuccess() {
+                        setCheckedOrders(new Set());
+                        alert('두발히어로 배차 신청이 완료되었습니다');
+                      }
+                    });
+                  }
                 }}
               >
                 [퀵]두발히어로 배차
               </DropdownItem>
               <DropdownItem
                 onClick={() => {
-                  reserve({
-                    partner: "kakao-mobility",
-                    orderIds: [...checkedOrders],
-                  });
+                  if (confirm(`주문번호 ${[...checkedOrders].join(',')}를 카카오모빌리티 배차 신청합니다`)) {
+                    reserve({
+                      partner: "kakao-mobility",
+                      orderIds: [...checkedOrders],
+                    }, {
+                      onSuccess() {
+                        setCheckedOrders(new Set());
+                        alert('카카오모빌리티 배차 신청이 완료되었습니다');
+                      }
+                    });
+                  }
                 }}
               >
                 [퀵]카카오모빌리티 배차
               </DropdownItem>
               <DropdownItem
                 onClick={() => {
-                  reserve({
-                    partner: "cj",
-                    orderIds: [...checkedOrders],
-                  });
+                  if (confirm(`주문번호 ${[...checkedOrders].join(',')}를 대한통운 배차 신청합니다`)) {
+                    reserve({
+                      partner: "cj",
+                      orderIds: [...checkedOrders],
+                    }, {
+                      onSuccess() {
+                        setCheckedOrders(new Set());
+                        alert('대한통운 배차 신청이 완료되었습니다');
+                      }
+                    });
+                  }
                 }}
               >
                 CJ 대한통운 배차
