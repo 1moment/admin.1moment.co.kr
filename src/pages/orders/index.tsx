@@ -244,16 +244,23 @@ function Orders() {
               </DropdownItem>
               <DropdownItem
                 onClick={() => {
-                  if (confirm(`주문번호 ${[...checkedOrders].join(',')}를 두발히어로 배차 신청합니다`)) {
-                    reserve({
-                      partner: "doobalhero",
-                      orderIds: [...checkedOrders],
-                    }, {
-                      onSuccess() {
-                        setCheckedOrders(new Set());
-                        alert('두발히어로 배차 신청이 완료되었습니다');
-                      }
-                    });
+                  if (
+                    confirm(
+                      `주문번호 ${[...checkedOrders].join(",")}를 두발히어로 배차 신청합니다`,
+                    )
+                  ) {
+                    reserve(
+                      {
+                        partner: "doobalhero",
+                        orderIds: [...checkedOrders],
+                      },
+                      {
+                        onSuccess() {
+                          setCheckedOrders(new Set());
+                          alert("두발히어로 배차 신청이 완료되었습니다");
+                        },
+                      },
+                    );
                   }
                 }}
               >
@@ -261,16 +268,23 @@ function Orders() {
               </DropdownItem>
               <DropdownItem
                 onClick={() => {
-                  if (confirm(`주문번호 ${[...checkedOrders].join(',')}를 카카오모빌리티 배차 신청합니다`)) {
-                    reserve({
-                      partner: "kakao-mobility",
-                      orderIds: [...checkedOrders],
-                    }, {
-                      onSuccess() {
-                        setCheckedOrders(new Set());
-                        alert('카카오모빌리티 배차 신청이 완료되었습니다');
-                      }
-                    });
+                  if (
+                    confirm(
+                      `주문번호 ${[...checkedOrders].join(",")}를 카카오모빌리티 배차 신청합니다`,
+                    )
+                  ) {
+                    reserve(
+                      {
+                        partner: "kakao-mobility",
+                        orderIds: [...checkedOrders],
+                      },
+                      {
+                        onSuccess() {
+                          setCheckedOrders(new Set());
+                          alert("카카오모빌리티 배차 신청이 완료되었습니다");
+                        },
+                      },
+                    );
                   }
                 }}
               >
@@ -278,16 +292,23 @@ function Orders() {
               </DropdownItem>
               <DropdownItem
                 onClick={() => {
-                  if (confirm(`주문번호 ${[...checkedOrders].join(',')}를 대한통운 배차 신청합니다`)) {
-                    reserve({
-                      partner: "cj",
-                      orderIds: [...checkedOrders],
-                    }, {
-                      onSuccess() {
-                        setCheckedOrders(new Set());
-                        alert('대한통운 배차 신청이 완료되었습니다');
-                      }
-                    });
+                  if (
+                    confirm(
+                      `주문번호 ${[...checkedOrders].join(",")}를 대한통운 배차 신청합니다`,
+                    )
+                  ) {
+                    reserve(
+                      {
+                        partner: "cj",
+                        orderIds: [...checkedOrders],
+                      },
+                      {
+                        onSuccess() {
+                          setCheckedOrders(new Set());
+                          alert("대한통운 배차 신청이 완료되었습니다");
+                        },
+                      },
+                    );
                   }
                 }}
               >
@@ -305,13 +326,9 @@ function Orders() {
             <TableHeader>주문번호</TableHeader>
             <TableHeader>주문상태</TableHeader>
             <TableHeader>구매자</TableHeader>
+            <TableHeader>배송상태</TableHeader>
             <TableHeader>구매항목</TableHeader>
             <TableHeader>보내는사람</TableHeader>
-            <TableHeader>메시지카드</TableHeader>
-            <TableHeader>배송일</TableHeader>
-            <TableHeader className="text-center">배송방식</TableHeader>
-            <TableHeader className="text-center">시간대</TableHeader>
-            <TableHeader>배송상태</TableHeader>
             <TableHeader>배송지</TableHeader>
             <TableHeader>주문일자</TableHeader>
           </TableRow>
@@ -358,6 +375,28 @@ function Orders() {
                   </React.Fragment>
                 )}
               </TableCell>
+              <TableCell className="tabular-nums">
+                <div>
+                  <DeliveryStatusBadge deliveryStatus={order.deliveryStatus} />
+                </div>
+                <p>{format(order.deliveryDate, "yyyy-MM-dd")}</p>
+                <div className="flex gap-2">{order.deliveryMethod?.title}</div>
+                <div>
+                  <DeliveryReceivingTimeBadge
+                      receivingTime={order.receivingTime}
+                  />
+                </div>
+                {order.messageCardText && (
+                    <Link
+                        color="zinc"
+                        to={`https://www.1moment.co.kr/message-card?secret=f1d80654-3f7e-49e0-a43e-8678dbb47220&order_id=${order.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                      메세지 카드 문구 프린트
+                    </Link>
+                )}
+              </TableCell>
               <TableCell>
                 <ul>
                   {order.items.map((item) => (
@@ -376,30 +415,6 @@ function Orders() {
                     <p>{order.senderPhoneNumber}</p>
                   </React.Fragment>
                 )}
-              </TableCell>
-              <TableCell>
-                {order.messageCardText && (
-                  <Link
-                    color="zinc"
-                    to={`https://www.1moment.co.kr/message-card?secret=f1d80654-3f7e-49e0-a43e-8678dbb47220&order_id=${order.id}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    메세지 카드 문구 프린트
-                  </Link>
-                )}
-              </TableCell>
-              <TableCell className="tabular-nums">
-                {format(order.deliveryDate, "yyyy-MM-dd")}
-              </TableCell>
-              <TableCell>{order.deliveryMethod?.title}</TableCell>
-              <TableCell className="text-center">
-                <DeliveryReceivingTimeBadge
-                  receivingTime={order.receivingTime}
-                />
-              </TableCell>
-              <TableCell>
-                <DeliveryStatusBadge deliveryStatus={order.deliveryStatus} />
               </TableCell>
               <TableCell>
                 <Strong>
