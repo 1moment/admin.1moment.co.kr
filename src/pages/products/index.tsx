@@ -137,7 +137,9 @@ function Products() {
                   }}
               >
                 <TableCell>
-                  <img className="w-20 h-20" src={product.imageUrl} alt="" />
+                  <div className="w-20 h-20">
+                    <img src={product.imageUrl} alt="" />
+                  </div>
                 </TableCell>
                 <TableCell>
                   {product.title}
