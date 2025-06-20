@@ -502,7 +502,7 @@ export default function ProductForm({
             }
 
             if (arr.find((item) => item.uid === uid)) {
-              return arr.map((item) => (item.uid === uid ? productItem : item));
+              return arr.map((item) => (item.uid === uid ? { ...item, ...productItem } : item));
             }
             return [...arr, productItem];
           });
