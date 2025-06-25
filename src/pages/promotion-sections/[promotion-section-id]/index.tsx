@@ -36,6 +36,23 @@ function PromotionSection() {
   const { mutate: updateData } =
     usePromotionSectionUpdateMutation(promotionSectionId);
 
+  const { mutate: addSectionProduct } = useMutation<
+      PromotionCategory,
+      Error,
+      { sectionId: number; productId: number }
+  >({
+    async mutationFn(data) {
+      const result = await apiClient(
+          `/admin/promotion-sections/${data.sectionId}/products/${data.productId}`,
+          {
+            method: "POST",
+          },
+      );
+
+      return await result.json();
+    },
+  });
+
   const { mutate: removeSectionProduct } = useMutation<
     PromotionCategory,
     Error,
@@ -171,7 +188,13 @@ function PromotionSection() {
         )}
         open={openProducts}
         setOpen={setOpenProducts}
-        onSelect={() => refetch()}
+        onSelect={(product ) => {
+          addSectionProduct({ sectionId: promotionSection.id, productId: product.id }, {
+            onSuccess() {
+              refetch();
+            }
+          });
+        }}
       />
     </React.Fragment>
   );
