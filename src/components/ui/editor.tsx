@@ -1,7 +1,7 @@
 import * as React from "react";
 import { apiClient } from "@/utils/api-client.ts";
 import {
-  BoldIcon,
+  BoldIcon, CornerDownLeftIcon,
   ImageIcon,
   ItalicIcon,
   Link2Icon,
@@ -116,10 +116,18 @@ export function Editor({
         <Button
           plain
           data-active={editor?.isActive("underline") ? "" : undefined}
+          onClick={() => editor?.chain().focus().toggleUnderline().run()}
         >
-          <UnderlineIcon
-            onClick={() => editor?.chain().focus().toggleUnderline().run()}
-          />
+          <UnderlineIcon />
+        </Button>
+
+        <Button
+            plain
+          onClick={() => {
+            editor.commands.setHardBreak();
+          }}
+        >
+          <CornerDownLeftIcon />
         </Button>
 
         <Button plain data-active={editor?.isActive("link") ? "" : undefined}>
@@ -255,16 +263,16 @@ export function Editor({
         />
         <hr className="w-[1px] h-6 border-none bg-gray-300" />
 
-        <Button plain disabled={!editor.can().undo()}>
-          <UndoIcon onClick={() => editor.commands.undo()} />
-        </Button>
-        <Button
-          plain
-          disabled={!editor.can().redo()}
-          data-active={editor?.isActive("underline") ? "" : undefined}
-        >
-          <RedoIcon onClick={() => editor.commands.redo()} />
-        </Button>
+        {/*<Button plain disabled={!editor.can().undo()}>*/}
+        {/*  <UndoIcon onClick={() => editor.commands.undo()} />*/}
+        {/*</Button>*/}
+        {/*<Button*/}
+        {/*  plain*/}
+        {/*  disabled={!editor.can().redo()}*/}
+        {/*  data-active={editor?.isActive("underline") ? "" : undefined}*/}
+        {/*>*/}
+        {/*  <RedoIcon onClick={() => editor.commands.redo()} />*/}
+        {/*</Button>*/}
       </div>
       <Divider />
       <EditorContent
