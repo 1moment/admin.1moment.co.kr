@@ -37,6 +37,8 @@ import {
 } from "@/components/ui/listbox.tsx";
 import { Checkbox } from "@/components/ui/checkbox.tsx";
 import {Textarea} from "@/components/ui/textarea.tsx";
+import {Select} from "@/components/ui/select.tsx";
+import {useDeliveryMethods} from "@/hooks/use-delivery-methods.tsx";
 
 function Order() {
   const params = useParams<{ "order-id": string }>();
@@ -44,6 +46,7 @@ function Order() {
   const orderId = Number(params["order-id"]);
   const { data: adminUsers } = useAdminUsers();
   const { data: order, refetch } = useOrder(orderId);
+  const { data: { items: deliveryMethods } } = useDeliveryMethods({ currentPage: 1, pageSize: 100 });
   const { mutate: updateOrder, isPending: isOrderUpdating } =
     useOrderUpdateMutation(order.id);
   const { mutate: print, isPending } = useOrderMessagePrint();
@@ -364,6 +367,7 @@ function Order() {
 
               updateOrder({
                 ...data,
+                deliveryMethodId: Number(data.deliveryMethodId),
                 isAnonymous: data.isAnonymous === 'on',
               }, {
                 onSuccess() {
@@ -391,10 +395,20 @@ function Order() {
               </Field>
             </div>
 
-            <div className="mt-5">
+            <div className="mt-5 flex gap-4">
               <Field>
                 <Label>배송희망일</Label>
                 <Input name="deliveryDate" type="date" defaultValue={format(new Date(order.deliveryDate), 'yyyy-MM-dd')}/>
+              </Field>
+              <Field>
+                <Label>시간대</Label>
+                <Select name="receivingTime" defaultValue={order.receivingTime}>
+                  <option value="QUICK">QUICK</option>
+                  <option value="MORNING">MORNING</option>
+                  <option value="AFTERNOON">AFTERNOON</option>
+                  <option value="EVENING">EVENING</option>
+                  <option value="ANYTIME">ANYTIME</option>
+                </Select>
               </Field>
             </div>
 
@@ -408,6 +422,38 @@ function Order() {
                 <Label>연락처</Label>
                 <Input name="receiverPhoneNumber" defaultValue={order.receiverPhoneNumber} />
               </Field>
+            </div>
+
+            <div className="mt-5">
+              <Field>
+                <Label>배송방법</Label>
+                <Select name="deliveryMethodId" defaultValue={order.deliveryMethod.id}>
+                  {deliveryMethods.map((deliveryMethod) => (
+                      <option
+                          value={deliveryMethod.id}
+                          key={`delivery-method-${deliveryMethod.id}`}
+                      >
+                        {deliveryMethod.title}
+                      </option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
+
+            <div className="mt-5">
+              <Field>
+                <Label>배송지</Label>
+                <Input name="receiverZipCode" defaultValue={order.receiverZipCode} placeholder="우편번호" />
+              </Field>
+
+            </div>
+            <div className="mt-2">
+              <Field>
+                <Input name="receiverAddress" defaultValue={order.receiverAddress} placeholder="주소" />
+              </Field>
+            </div>
+            <div className="mt-2">
+              <Input name="receiverAddressDetail" defaultValue={order.receiverAddressDetail} placeholder="상세주소" />
             </div>
 
             <div className="mt-5">

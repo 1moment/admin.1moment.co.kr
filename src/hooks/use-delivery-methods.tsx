@@ -5,15 +5,15 @@ export function useDeliveryMethods(options) {
   return useSuspenseQuery<{ items: DeliveryMethod[] }>({
     queryKey: [
       "delivery-methods",
-      { page: options.currentPage, status: options.status },
+      { page: options.currentPage, isDefault: options.isDefault },
     ],
     async queryFn() {
       const params = new URLSearchParams();
-      params.set("page", `${options.currentPage}`);
+      params.set("page", `${options?.currentPage || 1}`);
       params.set("limit", "15");
 
-      if (options.status) {
-        params.set("status", options.status);
+      if (typeof options.isDefault === 'boolean') {
+        params.set("isDefault", String(options.isDefault));
       }
       const response = await apiClient(
         `/admin/delivery-methods?${params.toString()}`,
